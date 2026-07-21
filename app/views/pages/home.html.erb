@@ -1,0 +1,9 @@
+<h1>Welcome to StreamFlow</h1>
+
+<% if @current_user %>
+  <p>Hello, <%= @current_user.username %>! You are logged in.</p>
+  <%= button_to "Log Out", logout_path, method: :delete %>
+<% else %>
+  <p>Please sign in to continue:</p>
+  <%= button_to "Sign in with Google", "/auth/google_oauth2", data: { turbo: false } %>
+<% end %>

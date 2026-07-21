@@ -1,0 +1,2 @@
+class VideoView < ApplicationRecord
+end
