@@ -51,3 +51,7 @@
 /.kamal/secrets
 .DS_Store
 *.swp
+
+
+/.claude
+CLAUDE.md

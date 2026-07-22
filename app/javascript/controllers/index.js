@@ -6,3 +6,9 @@ import { application } from "./application"
 
 import HelloController from "./hello_controller"
 application.register("hello", HelloController)
+
+import UploadWidgetController from "./upload_widget_controller"
+application.register("upload-widget", UploadWidgetController)
+
+import VideoUploadFormController from "./video_upload_form_controller"
+application.register("video-upload-form", VideoUploadFormController)

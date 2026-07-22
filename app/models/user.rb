@@ -1,4 +1,5 @@
 class User < ApplicationRecord
+  has_many :channels, dependent: :destroy
   def self.find_or_create_from_omniauth(auth)
     # 1. Search for existing user
     user = find_by(provider: auth.provider, uid: auth.uid)

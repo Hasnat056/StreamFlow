@@ -19,5 +19,13 @@ Rails.application.routes.draw do
   # Logout
   delete "/logout", to: "sessions#destroy"
 
+
+  resources :channels, only: [:new, :create] do
+    resources :videos, only: [:new, :create, :show]
+  end
+
+
+
+
   root "pages#home"
 end

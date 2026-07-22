@@ -1,9 +1,46 @@
-<h1>Welcome to StreamFlow</h1>
+<div class="container">
+  <header class="topbar">
+    <h1 class="brand">StreamFlow</h1>
 
-<% if @current_user %>
-  <p>Hello, <%= @current_user.username %>! You are logged in.</p>
-  <%= button_to "Log Out", logout_path, method: :delete %>
-<% else %>
-  <p>Please sign in to continue:</p>
-  <%= button_to "Sign in with Google", "/auth/google_oauth2", data: { turbo: false } %>
-<% end %>
+    <% if @current_user %>
+      <div class="topbar__user">
+        <span>Hi, <%= @current_user.username %></span>
+        <%= button_to "Log Out", logout_path, method: :delete, class: "btn btn--ghost" %>
+      </div>
+    <% else %>
+      <%= button_to "Sign in with Google", "/auth/google_oauth2", data: { turbo: false }, class: "btn btn-primary" %>
+    <% end %>
+  </header>
+
+  <% if @current_user %>
+    <section class="hero">
+      <% if @current_user.channels.any? %>
+        <% default_channel = @current_user.channels.first %>
+        <%= link_to "📹 Upload Video", new_channel_video_path(default_channel), class: "btn-upload" %>
+      <% else %>
+        <p class="hero__hint">Create a channel first to start uploading videos!</p>
+        <%= link_to "➕ Create a Channel", new_channel_path, class: "btn btn-primary" %>
+      <% end %>
+    </section>
+  <% end %>
+
+  <section class="video-grid-section">
+    <h2 class="section-title">Recently uploaded</h2>
+
+    <% if @recent_videos.present? %>
+      <div class="video-grid">
+        <% @recent_videos.each do |video| %>
+          <%= link_to channel_video_path(video.channel, video), class: "video-card" do %>
+            <div class="video-card__thumb">▶</div>
+            <div class="video-card__body">
+              <p class="video-card__title"><%= video.title %></p>
+              <p class="video-card__meta"><%= video.channel.channel_name %> · <%= time_ago_in_words(video.created_at) %> ago</p>
+            </div>
+          <% end %>
+        <% end %>
+      </div>
+    <% else %>
+      <p class="empty-state">No videos yet — be the first to upload!</p>
+    <% end %>
+  </section>
+</div>

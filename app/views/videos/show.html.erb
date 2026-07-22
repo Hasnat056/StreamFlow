@@ -1,0 +1,18 @@
+<!-- app/views/videos/show.html.erb -->
+<div style="max-width: 800px; margin: 40px auto; font-family: sans-serif;">
+  <h2><%= @video.title %></h2>
+  <p><strong>Status:</strong> <%= @video.status.humanize %></p>
+  <p><strong>Channel:</strong> <%= @channel.channel_name %></p>
+
+  <% if @video.source_file.attached? %>
+    <video controls width="100%" style="max-height: 500px; background: #000;">
+      <source src="<%= url_for(@video.source_file) %>" type="<%= @video.source_file.content_type %>">
+      Your browser does not support the video tag.
+    </video>
+  <% else %>
+    <p>No video file attached.</p>
+  <% end %>
+
+  <br><br>
+  <%= link_to "Back to Home", root_path %>
+</div>

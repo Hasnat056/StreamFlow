@@ -1,0 +1,65 @@
+<div style="max-width: 500px; margin: 40px auto; font-family: system-ui, -apple-system, sans-serif; line-height: 1.5; color: #333;">
+  <h2 style="margin-bottom: 20px; font-size: 1.75rem;">Create Your Channel</h2>
+
+  <%# Error Handling Box %>
+  <% if @channel.errors.any? %>
+    <div style="background-color: #fdf2f2; border: 1px solid #f8b4b4; border-radius: 6px; padding: 15px; margin-bottom: 20px;">
+      <h4 style="color: #9b1c1c; margin: 0 0 8px 0; font-size: 1rem;">
+        <%= pluralize(@channel.errors.count, "error") %> prevented this channel from being saved:
+      </h4>
+      <ul style="color: #9b1c1c; margin: 0; padding-left: 20px;">
+        <% @channel.errors.full_messages.each do |msg| %>
+          <li><%= msg %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <%= form_with model: @channel do |f| %>
+    <%# 1. Channel Name (Required) %>
+    <div style="margin-bottom: 18px;">
+      <%= f.label :channel_name, "Channel Name *", style: "display: block; margin-bottom: 6px; font-weight: 600;" %>
+      <%= f.text_field :channel_name,
+                       placeholder: "e.g. Hasnat's Tech Corner",
+                       required: true,
+                       style: "width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 14px;" %>
+    </div>
+
+    <%# 2. Category Dropdown (Required) %>
+    <div style="margin-bottom: 18px;">
+      <%= f.label :category, "Category *", style: "display: block; margin-bottom: 6px; font-weight: 600;" %>
+      <%= f.select :category,
+                   options_for_select(@categories, @channel.category),
+                   { prompt: "-- Select a Category --" },
+                   { required: true, style: "width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 14px; background-color: #fff;" } %>
+    </div>
+
+    <%# 3. Description (Optional) %>
+    <div style="margin-bottom: 18px;">
+      <%= f.label :description, style: "display: block; margin-bottom: 6px; font-weight: 600;" do %>
+        Description <span style="font-weight: normal; color: #666; font-size: 0.875rem;">(Optional)</span>
+      <% end %>
+      <%= f.text_area :description,
+                      rows: 4,
+                      placeholder: "What is your channel about?",
+                      style: "width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 14px; resize: vertical;" %>
+    </div>
+
+    <%# 4. Tags (Comma-separated) %>
+    <div style="margin-bottom: 24px;">
+      <%= f.label :tags_input, "Tags", style: "display: block; margin-bottom: 6px; font-weight: 600;" %>
+      <%= f.text_field :tags_input,
+                       placeholder: "tech, coding, rails",
+                       style: "width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 14px;" %>
+      <small style="color: #666; display: block; margin-top: 4px;">Separate tags with commas.</small>
+    </div>
+
+    <%# Submit Button %>
+    <%= f.submit "Create Channel",
+                 style: "width: 100%; padding: 12px; background-color: #007bff; color: white; font-weight: 600; border: none; border-radius: 4px; cursor: pointer; font-size: 15px;" %>
+  <% end %>
+
+  <div style="margin-top: 20px; text-align: center;">
+    <%= link_to "← Back to Home", root_path, style: "color: #555; text-decoration: none; font-size: 0.9rem;" %>
+  </div>
+</div>

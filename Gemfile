@@ -70,3 +70,16 @@ end
 gem "omniauth"
 gem "omniauth-google-oauth2"
 gem "omniauth-rails_csrf_protection"
+
+# Video State Machine
+gem "aasm"
+
+# AWS S3 Client for Cloudflare R2 direct uploads
+gem "aws-sdk-s3"
+
+# Background Processing & Redis
+gem "sidekiq"
+gem "redis"
+
+# Ruby wrapper around FFmpeg
+gem "streamio-ffmpeg"
