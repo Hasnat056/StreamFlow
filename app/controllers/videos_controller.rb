@@ -19,8 +19,8 @@ class VideosController < ApplicationController
 
       respond_to do |format|
         # Navigation requirement: Redirect to Video Show page!
-        format.html { redirect_to channel_video_path(@channel, @video), notice: "Video uploaded successfully!" }
-        format.json { render json: { status: "ok", video_id: @video.id, url: channel_video_path(@channel, @video) }, status: :created }
+        format.html { redirect_to root_path, notice: "Video uploaded! We'll notify you when it's ready to watch" }
+        format.json { render json: { status: "ok", video_id: @video.id, url: root_path }, status: :created }
       end
     else
       # Logs exact model validation errors to terminal so we can see why it fails
@@ -36,6 +36,8 @@ class VideosController < ApplicationController
   def show
     @channel = Channel.find(params[:channel_id])
     @video = @channel.videos.find(params[:id])
+
+    redirect_to root_path, notice: "The video isn't ready to watch yet." and return unless @video.ready?
   end
 
   private

@@ -15,3 +15,6 @@ application.register("video-upload-form", VideoUploadFormController)
 
 import ToastController from "./toast_controller"
 application.register("toast", ToastController)
+
+import HlsPlayerController from "./hls_player_controller"
+application.register("hls-player", HlsPlayerController)
