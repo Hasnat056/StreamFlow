@@ -10,6 +10,7 @@
   "dependencies": {
     "@hotwired/stimulus": "^3.2.2",
     "@hotwired/turbo-rails": "^8.0.23",
-    "@rails/activestorage": "^8.1.300"
+    "@rails/activestorage": "^8.1.300",
+    "hls.js": "^1.6.16"
   }
 }

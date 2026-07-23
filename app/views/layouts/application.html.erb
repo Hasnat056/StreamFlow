@@ -26,6 +26,11 @@
   <body>
     <%= yield %>
 
+    <% if current_user %>
+      <%= turbo_stream_from "user_#{current_user.id}_notifications" %>
+    <% end %>
+    <div id="notifications" class="notifications"></div>
+
     <div id="upload-widget" data-turbo-permanent data-controller="upload-widget" class="upload-widget upload-widget--hidden">
       <div class="upload-widget__row">
         <span class="upload-widget__status" data-upload-widget-target="status">Uploading</span>

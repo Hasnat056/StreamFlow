@@ -15,6 +15,8 @@ class VideosController < ApplicationController
       # Mark state machine as uploaded if AASM event exists
       @video.mark_as_uploaded! if @video.may_mark_as_uploaded?
 
+      VideoProcessingJob.perform_later(@video.id)
+
       respond_to do |format|
         # Navigation requirement: Redirect to Video Show page!
         format.html { redirect_to channel_video_path(@channel, @video), notice: "Video uploaded successfully!" }

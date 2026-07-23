@@ -1,0 +1,7 @@
+<div id="video_ready_<%= video.id %>" class="toast" data-controller="toast">
+  <div class="toast__row">
+    <span class="toast__title">"<%= video.title %>" is ready</span>
+    <button type="button" class="toast__dismiss" data-action="toast#dismiss">&times;</button>
+  </div>
+  <%= link_to "Watch now", channel_video_path(video.channel, video), class: "toast__link" %>
+</div>

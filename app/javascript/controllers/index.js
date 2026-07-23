@@ -12,3 +12,6 @@ application.register("upload-widget", UploadWidgetController)
 
 import VideoUploadFormController from "./video_upload_form_controller"
 application.register("video-upload-form", VideoUploadFormController)
+
+import ToastController from "./toast_controller"
+application.register("toast", ToastController)

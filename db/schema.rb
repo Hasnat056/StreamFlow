@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_22_131011) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_22_163041) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "citext"
   enable_extension "pg_catalog.plpgsql"
@@ -132,6 +132,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_22_131011) do
     t.bigint "channel_id", null: false
     t.datetime "created_at", null: false
     t.text "description"
+    t.text "processing_error"
     t.enum "status", default: "upload_pending", null: false, enum_type: "video_status"
     t.text "tags", default: [], null: false, array: true
     t.string "title", null: false

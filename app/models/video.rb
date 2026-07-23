@@ -49,9 +49,12 @@ class Video < ApplicationRecord
     end
   end
 
-  # Returns the path prefix in R2 where HLS playlist files and .ts segments will be saved
-  def hls_output_prefix
-    "videos/#{id}/hls/v1/"
+
+  def next_hls_version
+    (video_playlists.maximum(:version) || 0) + 1
   end
 
+  def hls_output_prefix(version = next_hls_version)
+    "videos/#{id}/hls/v#{version}/"
+  end
 end
