@@ -5,7 +5,9 @@ export default class extends Controller {
   static values = { duration: { type: Number, default: 6000 } }
 
   connect() {
-    this.timeout = setTimeout(() => this.dismiss(), this.durationValue)
+    if (this.durationValue > 0) {
+      this.timeout = setTimeout(() => this.dismiss(), this.durationValue)
+    }
   }
 
   disconnect() {

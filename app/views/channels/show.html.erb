@@ -1,0 +1,49 @@
+<% if @channel.banner.attached? %>
+  <div class="channel-banner">
+    <%= image_tag @channel.banner %>
+  </div>
+<% end %>
+
+<div class="channel-header">
+  <% if @channel.avatar.attached? %>
+    <%= image_tag @channel.avatar, class: "channel-header__avatar-img" %>
+  <% else %>
+    <div class="channel-header__avatar"><%= @channel.channel_name.first.upcase %></div>
+  <% end %>
+
+  <div class="channel-header__body">
+    <h1 class="channel-header__name"><%= @channel.channel_name %></h1>
+    <span class="badge"><%= @channel.category %></span>
+
+    <% if @channel.description.present? %>
+      <p class="channel-header__desc"><%= @channel.description %></p>
+    <% end %>
+
+    <% if @channel.tags.present? %>
+      <div>
+        <% @channel.tags.each do |tag| %>
+          <span class="tag-pill">#<%= tag %></span>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+
+  <% if current_user == @channel.user %>
+    <div class="channel-header__actions">
+      <%= link_to "📹 Upload video", new_channel_video_path(@channel), class: "btn btn--primary" %>
+      <%= link_to "Edit channel", edit_channel_path(@channel), class: "btn btn--ghost" %>
+    </div>
+  <% end %>
+</div>
+
+<section>
+  <h2 class="section-title">Videos</h2>
+
+  <% if @videos.present? %>
+    <div class="video-grid">
+      <%= render partial: "videos/video_card", collection: @videos, as: :video %>
+    </div>
+  <% else %>
+    <p class="empty-state">No videos yet.</p>
+  <% end %>
+</section>

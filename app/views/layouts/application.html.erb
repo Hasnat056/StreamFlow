@@ -6,6 +6,14 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="application-name" content="Stream Flow">
     <meta name="mobile-web-app-capable" content="yes">
+
+    <script>
+      (function () {
+        var m = document.cookie.match(/(?:^|; )theme=(light|dark)/);
+        if (m) document.documentElement.setAttribute("data-theme", m[1]);
+      })();
+    </script>
+
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
 
@@ -24,23 +32,44 @@
   </head>
 
   <body>
-    <%= yield %>
+    <div class="shell">
+      <%= render "shared/sidebar" %>
+
+      <main class="main">
+        <div class="main-inner">
+          <% if notice %>
+            <div class="flash flash--notice"><%= notice %></div>
+          <% end %>
+          <% if alert %>
+            <div class="flash flash--alert"><%= alert %></div>
+          <% end %>
+
+          <%= yield %>
+        </div>
+      </main>
+    </div>
 
     <% if current_user %>
       <%= turbo_stream_from "user_#{current_user.id}_notifications" %>
     <% end %>
     <div id="notifications" class="notifications"></div>
 
-    <div id="upload-widget" data-turbo-permanent data-controller="upload-widget" class="upload-widget upload-widget--hidden">
-      <div class="upload-widget__row">
-        <span class="upload-widget__status" data-upload-widget-target="status">Uploading</span>
-        <button type="button" class="upload-widget__dismiss" data-upload-widget-target="dismiss" data-action="upload-widget#dismiss">&times;</button>
+    <div id="upload-widget" data-turbo-permanent data-controller="upload-widget" class="upload-capsule upload-capsule--hidden">
+      <div class="upload-capsule__ring">
+        <svg viewBox="0 0 60 60">
+          <circle class="upload-capsule__track" cx="30" cy="30" r="26"></circle>
+          <circle class="upload-capsule__progress" cx="30" cy="30" r="26" data-upload-widget-target="progressCircle"></circle>
+        </svg>
+        <span class="upload-capsule__icon" data-upload-widget-target="icon"></span>
       </div>
-      <p class="upload-widget__filename" data-upload-widget-target="filename"></p>
-      <div class="upload-widget__bar">
-        <div class="upload-widget__fill" data-upload-widget-target="fill"></div>
+      <div class="upload-capsule__body">
+        <p class="upload-capsule__text" data-upload-widget-target="status"></p>
+        <div class="upload-capsule__bar" data-upload-widget-target="bar">
+          <div class="upload-capsule__fill" data-upload-widget-target="fill"></div>
+        </div>
       </div>
-      <a href="#" class="upload-widget__link" data-upload-widget-target="link">View video</a>
+      <a href="#" class="upload-capsule__link hidden" data-upload-widget-target="link">View</a>
+      <button type="button" class="upload-capsule__dismiss" data-action="upload-widget#dismiss">&times;</button>
     </div>
   </body>
 </html>

@@ -38,6 +38,12 @@ class VideosController < ApplicationController
     @video = @channel.videos.find(params[:id])
 
     redirect_to root_path, notice: "The video isn't ready to watch yet." and return unless @video.ready?
+
+    if current_user
+      @video.video_views.find_or_create_by(user: current_user) do |view|
+        view.ip_address = request.remote_ip
+      end
+    end
   end
 
   private

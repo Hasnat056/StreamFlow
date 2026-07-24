@@ -1,8 +1,8 @@
 class PagesController < ApplicationController
   def home
-    # If a user is logged in, grab their record
-    @current_user = User.find_by(id: session[:user_id]) if session[:user_id]
-
-    @recent_videos = Video.ready.includes(:channel).order(created_at: :desc).limit(24)
+    @query = params[:q].to_s.strip
+    videos = Video.ready.includes(:channel, :video_views).order(created_at: :desc)
+    videos = videos.where("title ILIKE ?", "%#{@query}%") if @query.present?
+    @recent_videos = videos.limit(24)
   end
 end

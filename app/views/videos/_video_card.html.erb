@@ -1,0 +1,20 @@
+<%= link_to channel_video_path(video.channel, video), class: "video-card" do %>
+  <div class="video-card__thumb">
+    <% if video.thumbnail_url.present? %>
+      <%= image_tag video.thumbnail_url, alt: video.title, loading: "lazy" %>
+    <% else %>
+      <div class="video-card__thumb-fallback">
+        <span class="video-card__play"><svg viewBox="0 0 24 24"><path d="M6 4l14 8-14 8z"/></svg></span>
+      </div>
+    <% end %>
+    <span class="video-card__dur">--:--</span>
+  </div>
+  <div class="video-card__meta">
+    <div class="video-card__avatar"><%= video.channel.channel_name.first.upcase %></div>
+    <div>
+      <h3 class="video-card__title"><%= video.title %></h3>
+      <p class="video-card__sub"><b><%= video.channel.channel_name %></b></p>
+      <p class="video-card__sub"><span class="video-card__stat"><%= pluralize(video.video_views.size, "view") %></span> · <%= time_ago_in_words(video.created_at) %> ago</p>
+    </div>
+  </div>
+<% end %>

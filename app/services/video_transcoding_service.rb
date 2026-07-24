@@ -25,9 +25,11 @@ class VideoTranscodingService
       variant_infos = renditions.map { |rendition| transcode_rendition(movie, rendition, tmp_dir) }
       write_master_playlist(tmp_dir, variant_infos)
       upload_directory(tmp_dir, prefix)
+      thumbnail_url = generate_and_upload_thumbnail(movie, tmp_dir)
 
       master_url = master_playlist_url(prefix)
       activate_new_playlist(master_url, version)
+      @video.update!(thumbnail_url: thumbnail_url) if thumbnail_url
       @video.complete_processing!
       broadcast_ready_notification
     end
@@ -101,10 +103,29 @@ class VideoTranscodingService
   end
 
   def master_playlist_url(prefix)
+    "#{r2_public_base_url}/#{prefix}master.m3u8"
+  end
+
+  def generate_and_upload_thumbnail(movie, tmp_dir)
+    output = File.join(tmp_dir, "thumbnail.jpg")
+    movie.screenshot(output, seek_time: thumbnail_seek_time(movie), resolution: "640x360")
+    return nil unless File.exist?(output)
+
+    key = @video.thumbnail_key
+    S3_BUCKET.object(key).upload_file(output, content_type: "image/jpeg")
+    "#{r2_public_base_url}/#{key}"
+  end
+
+  def thumbnail_seek_time(movie)
+    duration = movie.duration.to_f
+    duration <= 0 ? 0 : [ duration * 0.1, 3 ].min
+  end
+
+  def r2_public_base_url
     base_url = Rails.application.credentials.dig(:r2, :public_base_url)
     raise "Missing r2.public_base_url credential - cannot build a playable master playlist URL" if base_url.blank?
 
-    "#{base_url}/#{prefix}master.m3u8"
+    base_url
   end
 
   def activate_new_playlist(master_url, version)

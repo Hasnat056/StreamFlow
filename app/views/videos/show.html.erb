@@ -1,17 +1,14 @@
-<!-- app/views/videos/show.html.erb -->
-<div style="max-width: 800px; margin: 40px auto; font-family: sans-serif;">
-  <h2><%= @video.title %></h2>
-  <p><strong>Status:</strong> <%= @video.status.humanize %></p>
-  <p><strong>Channel:</strong> <%= @channel.channel_name %></p>
-
+<div class="player-wrap">
   <video
     controls
-    width="100%"
-    style="max-height: 500px; background: #000;"
     data-controller="hls-player"
     data-hls-player-src-value="<%= @video.active_playlist.master_file_url %>"
   ></video>
-
-  <br><br>
-  <%= link_to "Back to Home", root_path %>
 </div>
+
+<div>
+  <h1 class="video-title"><%= @video.title %></h1>
+  <%= link_to @channel.channel_name, channel_path(@channel), class: "video-channel-link" %>
+</div>
+
+<%= link_to "← Back to home", root_path, class: "back-link" %>

@@ -17,6 +17,9 @@ class Channel < ApplicationRecord
   has_many :videos, dependent: :destroy
   has_many :subscriptions, dependent: :destroy
 
+  has_one_attached :avatar
+  has_one_attached :banner
+
   # Validations
   validates :channel_name, presence: true
   validates :category, presence: true

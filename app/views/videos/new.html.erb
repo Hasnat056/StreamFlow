@@ -1,9 +1,9 @@
-<div class="container upload-page">
-  <h2 class="page-title">Upload video to <%= @channel.channel_name %></h2>
+<div class="form-card">
+  <h1 class="form-card__title">Upload video to <%= @channel.channel_name %></h1>
 
   <% if @video.errors.any? %>
-    <div class="alert alert--error">
-      <h4><%= pluralize(@video.errors.count, "error") %> prohibited this video from being saved:</h4>
+    <div class="flash flash--alert">
+      <p><b><%= pluralize(@video.errors.count, "error") %></b> prohibited this video from being saved:</p>
       <ul>
         <% @video.errors.full_messages.each do |msg| %>
           <li><%= msg %></li>
@@ -20,22 +20,20 @@
           video_upload_form_create_url_value: channel_videos_path(@channel, format: :json),
           video_upload_form_redirect_url_value: root_path
         } do |f| %>
-    <div class="form-field">
-      <%= f.label :title, class: "form-label" %>
-      <%= f.text_field :title, required: true, class: "form-input", data: { video_upload_form_target: "title" } %>
+    <div class="field">
+      <%= f.label :title, class: "field__label" %>
+      <%= f.text_field :title, required: true, class: "field__input", data: { video_upload_form_target: "title" } %>
     </div>
 
-    <div class="form-field">
-      <%= f.label :source_file, "Select video", class: "form-label" %>
-      <%= f.file_field :source_file, accept: "video/*", required: true, data: { video_upload_form_target: "file" } %>
+    <div class="field">
+      <%= f.label :source_file, "Select video", class: "field__label" %>
+      <%= f.file_field :source_file, accept: "video/*", required: true, class: "field__file", data: { video_upload_form_target: "file" } %>
     </div>
 
-    <p class="form-warning hidden" data-video-upload-form-target="warning"></p>
+    <p class="hidden field__warning" data-video-upload-form-target="warning"></p>
 
-    <div class="form-actions">
-      <%= f.submit "Start Upload", class: "btn btn-primary" %>
-    </div>
+    <%= f.submit "Start Upload", class: "btn btn--primary btn--block" %>
   <% end %>
 
-  <p class="upload-hint">Your video uploads in the background — feel free to navigate away once you click Start Upload.</p>
+  <p class="form-card__hint">Your video uploads in the background — feel free to navigate away once you click Start Upload.</p>
 </div>

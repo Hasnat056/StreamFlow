@@ -57,4 +57,8 @@ class Video < ApplicationRecord
   def hls_output_prefix(version = next_hls_version)
     "videos/#{id}/hls/v#{version}/"
   end
+
+  def thumbnail_key
+    "videos/#{id}/thumbnail.jpg"
+  end
 end

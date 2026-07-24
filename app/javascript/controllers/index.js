@@ -18,3 +18,9 @@ application.register("toast", ToastController)
 
 import HlsPlayerController from "./hls_player_controller"
 application.register("hls-player", HlsPlayerController)
+
+import DropdownController from "./dropdown_controller"
+application.register("dropdown", DropdownController)
+
+import ThemeController from "./theme_controller"
+application.register("theme", ThemeController)
