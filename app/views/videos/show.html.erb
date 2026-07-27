@@ -9,6 +9,7 @@
 
 <div>
   <h1 class="video-title"><%= @video.title %></h1>
+  <p class="video-meta"><span class="video-meta__stat"><%= pluralize(@video.video_views.size, "view") %></span> · <%= time_ago_in_words(@video.created_at) %> ago</p>
   <div class="video-channel-byline">
     <% if @channel.avatar.attached? %>
       <%= image_tag @channel.avatar, class: "video-card__avatar" %>
@@ -16,7 +17,10 @@
       <div class="video-card__avatar"><%= @channel.channel_name.first.upcase %></div>
     <% end %>
     <%= link_to @channel.channel_name, channel_path(@channel), class: "video-channel-link" %>
-    <%= render "shared/subscribe_button", channel: @channel %>
+    <%= render "shared/like_button", video: @video %>
+    <div class="video-channel-byline__spacer">
+      <%= render "shared/subscribe_button", channel: @channel %>
+    </div>
   </div>
 </div>
 

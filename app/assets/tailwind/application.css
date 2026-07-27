@@ -267,7 +267,10 @@ a { color: inherit; text-decoration: none; }
 .player-wrap + div { margin-top: 24px; }
 .player-wrap video { display: block; width: 100%; aspect-ratio: 16 / 9; }
 .video-title { font-family: var(--font-serif); font-size: 22px; font-weight: var(--title-weight); margin: 0; }
+.video-meta { font-size: 13px; color: var(--muted); margin: 6px 0 0; }
+.video-meta__stat { font-family: var(--font-mono); font-variant-numeric: tabular-nums; color: var(--faint); }
 .video-channel-byline { display: flex; align-items: center; gap: 10px; margin-top: 10px; }
+.video-channel-byline__spacer { margin-left: auto; }
 .video-channel-link { font-size: 13.5px; color: var(--muted); display: inline-block; }
 .video-channel-link:hover { color: var(--accent); }
 .back-link { font-size: 13px; font-weight: 600; color: var(--accent); margin-top: 28px; display: inline-block; }
@@ -300,6 +303,21 @@ a { color: inherit; text-decoration: none; }
 
 .upload-capsule__link { font-size: 12px; font-weight: 700; color: var(--accent); flex-shrink: 0; }
 .upload-capsule__dismiss { background: none; border: none; font-size: 15px; line-height: 1; color: var(--muted); cursor: pointer; flex-shrink: 0; }
+
+/* ---------- like button ---------- */
+
+.like-button { display: flex; align-items: center; gap: 10px; }
+.like-btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 38px; height: 38px; border-radius: 50%; flex-shrink: 0;
+  background: var(--surface-2); border: 1px solid var(--border); color: var(--muted);
+  cursor: pointer; transition: color .15s ease, background .15s ease, border-color .15s ease, transform .1s ease;
+}
+.like-btn svg { width: 18px; height: 18px; }
+.like-btn:hover { color: var(--danger-text); border-color: var(--danger-border); }
+.like-btn:active { transform: scale(0.88); }
+.like-btn--active { background: var(--danger-bg); border-color: var(--danger-border); color: var(--danger-text); }
+.like-button__count { font-size: 13px; font-weight: 600; color: var(--muted); }
 
 /* ---------- toast notifications: refined ---------- */
 
