@@ -115,6 +115,9 @@ a { color: inherit; text-decoration: none; }
 .theme-toggle:hover { color: var(--text); }
 .theme-toggle svg { width: 14px; height: 14px; }
 
+.sidebar__signin.btn--block { justify-content: flex-start; gap: 11px; }
+.sidebar__signin svg { width: 16px; height: 16px; flex-shrink: 0; }
+
 .profile { position: relative; }
 .profile__btn { display: flex; align-items: center; gap: 8px; width: 100%; padding: 6px; border-radius: 8px; background: none; border: none; cursor: pointer; }
 .profile__btn:hover { background: var(--surface-2); }
@@ -268,7 +271,7 @@ a { color: inherit; text-decoration: none; }
 .video-title { font-family: var(--font-serif); font-size: 22px; font-weight: var(--title-weight); margin: 20px 0 0; text-wrap: balance; }
 .video-meta { font-size: 13px; color: var(--muted); margin: 6px 0 0; }
 .video-meta__stat { font-family: var(--font-mono); font-variant-numeric: tabular-nums; color: var(--faint); }
-.video-channel-byline { display: flex; align-items: center; gap: 10px; margin-top: 10px; }
+.video-channel-byline { display: flex; align-items: center; gap: 10px; margin-top: 10px; flex-wrap: wrap; }
 .video-channel-byline__spacer { margin-left: auto; }
 .video-channel-link { font-size: 13.5px; color: var(--muted); display: inline-block; }
 .video-channel-link:hover { color: var(--accent); }
@@ -360,4 +363,25 @@ a { color: inherit; text-decoration: none; }
 @media (max-width: 860px) {
   .video-grid { grid-template-columns: repeat(2, 1fr); }
   .channel-header { flex-direction: column; }
+}
+
+@media (max-width: 600px) {
+  .main { padding: 16px 16px 40px; }
+
+  .guest-hero { margin: -16px -16px 24px; padding: 40px 20px 28px; }
+  .guest-hero__headline { font-size: 26px; }
+
+  .video-grid { grid-template-columns: 1fr; }
+
+  .channel-banner { margin: -16px -16px 0; aspect-ratio: 3 / 1; }
+  .channel-header--overlap { margin-top: -40px; }
+  .channel-header--overlap .channel-header__avatar,
+  .channel-header--overlap .channel-header__avatar-img { width: 64px; height: 64px; }
+  .channel-header__name { font-size: 21px; }
+
+  .watch-rail__thumb { width: 120px; }
+
+  .upload-capsule { right: 12px; bottom: 12px; max-width: calc(100vw - 24px); }
+  .notifications { right: 12px; bottom: calc(12px + 76px); }
+  .toast { width: calc(100vw - 24px); max-width: 300px; }
 }
