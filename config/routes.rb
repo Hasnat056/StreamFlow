@@ -21,7 +21,9 @@ Rails.application.routes.draw do
 
 
   resources :channels, only: [ :new, :create, :show, :edit, :update ] do
-    resources :videos, only: [ :new, :create, :show ]
+    resources :videos, only: [ :new, :create, :show ] do
+      resource :video_view, only: [ :create ]
+    end
     resource :subscription, only: [ :create, :destroy ]
   end
 

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_23_094858) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_27_182136) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "citext"
   enable_extension "pg_catalog.plpgsql"
@@ -121,9 +121,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_23_094858) do
     t.datetime "created_at", null: false
     t.inet "ip_address", null: false
     t.text "session_token"
-    t.bigint "user_id", null: false
+    t.bigint "user_id"
     t.bigint "video_id", null: false
-    t.index ["user_id", "video_id"], name: "index_video_views_on_user_id_and_video_id", unique: true
     t.index ["user_id"], name: "index_video_views_on_user_id"
     t.index ["video_id"], name: "index_video_views_on_video_id"
   end

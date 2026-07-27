@@ -3,6 +3,7 @@
     controls
     data-controller="hls-player"
     data-hls-player-src-value="<%= @video.active_playlist.master_file_url %>"
+    data-hls-player-view-url-value="<%= channel_video_video_view_path(@channel, @video) %>"
   ></video>
 </div>
 
