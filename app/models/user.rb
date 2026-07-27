@@ -1,5 +1,14 @@
 class User < ApplicationRecord
   has_many :channels, dependent: :destroy
+
+  has_many :subscriptions, dependent: :destroy
+  has_many :subscribed_channels, through: :subscriptions, source: :channel
+
+
+  def subscribed_to?(channel)
+    subscriptions.exists?(channel_id: channel.id)
+  end
+
   def self.find_or_create_from_omniauth(auth)
     # 1. Search for existing user
     user = find_by(provider: auth.provider, uid: auth.uid)

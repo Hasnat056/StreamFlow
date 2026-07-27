@@ -1,5 +1,15 @@
 # config/initializers/r2.rb
 
+# aws-sdk-core defaults to attaching an SDK-computed checksum to every S3
+# request; R2 rejects requests that carry both that and the Content-MD5
+# checksum ActiveStorage/aws-sdk-s3 already send ("You can only specify one
+# non-default checksum at a time"). Opt back into the old behavior for every
+# S3 client in the app (this one and ActiveStorage's).
+Aws.config.update(
+  request_checksum_calculation: "when_required",
+  response_checksum_validation: "when_required"
+)
+
 r2_config = Rails.application.credentials.r2
 
 if r2_config.present?

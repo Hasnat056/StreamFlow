@@ -9,6 +9,7 @@
 <div>
   <h1 class="video-title"><%= @video.title %></h1>
   <%= link_to @channel.channel_name, channel_path(@channel), class: "video-channel-link" %>
+  <%= render "shared/subscribe_button", channel: @channel %>
 </div>
 
 <%= link_to "← Back to home", root_path, class: "back-link" %>

@@ -141,8 +141,14 @@ class VideoTranscodingService
     Turbo::StreamsChannel.broadcast_append_to(
       "user_#{@video.channel.user_id}_notifications",
       target: "notifications",
-      partial: "shared/video_ready_notification",
-      locals: { video: @video }
+      partial: "shared/toast",
+      locals: {
+        kind: :notice,
+        message: "\"#{@video.title}\" is ready",
+        link: Rails.application.routes.url_helpers.channel_video_path(@video.channel, @video),
+        link_text: "▶ Watch now",
+        persistent: true
+      }
     )
   end
 end

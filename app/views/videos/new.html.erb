@@ -2,7 +2,7 @@
   <h1 class="form-card__title">Upload video to <%= @channel.channel_name %></h1>
 
   <% if @video.errors.any? %>
-    <div class="flash flash--alert">
+    <div class="form-errors">
       <p><b><%= pluralize(@video.errors.count, "error") %></b> prohibited this video from being saved:</p>
       <ul>
         <% @video.errors.full_messages.each do |msg| %>

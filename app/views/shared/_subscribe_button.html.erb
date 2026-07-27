@@ -1,0 +1,9 @@
+<div id="subscribe_button_<%= channel.id %>">
+<% if current_user && current_user != channel.user && channel.channel_type == "creator" %>
+  <% if current_user.subscribed_to?(channel) %>
+    <%= button_to "Subscribed ✓", channel_subscription_path(channel), method: :delete, class: "btn btn--ghost" %>
+  <% else %>
+    <%= button_to "Subscribe", channel_subscription_path(channel), method: :post, class: "btn btn--primary" %>
+  <% end %>
+<% end %>
+</div>

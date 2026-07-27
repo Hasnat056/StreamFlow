@@ -28,12 +28,14 @@
     <% end %>
   </div>
 
-  <% if current_user == @channel.user %>
     <div class="channel-header__actions">
-      <%= link_to "📹 Upload video", new_channel_video_path(@channel), class: "btn btn--primary" %>
-      <%= link_to "Edit channel", edit_channel_path(@channel), class: "btn btn--ghost" %>
+      <% if current_user == @channel.user %>
+        <%= link_to "📹 Upload video", new_channel_video_path(@channel), class: "btn btn--primary" %>
+        <%= link_to "Edit channel", edit_channel_path(@channel), class: "btn btn--ghost" %>
+      <% else %>
+        <%= render "shared/subscribe_button", channel: @channel %>
+      <% end %>
     </div>
-  <% end %>
 </div>
 
 <section>

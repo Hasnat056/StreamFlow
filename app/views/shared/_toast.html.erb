@@ -1,0 +1,21 @@
+<div
+  id="toast_<%= SecureRandom.hex(4) %>"
+  class="toast"
+  data-controller="toast"
+  <%= "data-toast-duration-value=\"0\"".html_safe if local_assigns[:persistent] %>
+>
+  <div class="toast__icon <%= "toast__icon--alert" if kind == :alert %>">
+    <% if kind == :alert %>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    <% else %>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12l5 5L20 7"/></svg>
+    <% end %>
+  </div>
+  <div class="toast__content">
+    <p class="toast__title"><%= message %></p>
+    <% if local_assigns[:link].present? %>
+      <%= link_to (local_assigns[:link_text] || "View"), link, class: "toast__link" %>
+    <% end %>
+  </div>
+  <button type="button" class="toast__dismiss" data-action="toast#dismiss">&times;</button>
+</div>

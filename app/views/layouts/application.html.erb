@@ -37,13 +37,6 @@
 
       <main class="main">
         <div class="main-inner">
-          <% if notice %>
-            <div class="flash flash--notice"><%= notice %></div>
-          <% end %>
-          <% if alert %>
-            <div class="flash flash--alert"><%= alert %></div>
-          <% end %>
-
           <%= yield %>
         </div>
       </main>
@@ -52,7 +45,14 @@
     <% if current_user %>
       <%= turbo_stream_from "user_#{current_user.id}_notifications" %>
     <% end %>
-    <div id="notifications" class="notifications"></div>
+    <div id="notifications" class="notifications">
+      <% if notice %>
+        <%= render "shared/toast", kind: :notice, message: notice %>
+      <% end %>
+      <% if alert %>
+        <%= render "shared/toast", kind: :alert, message: alert %>
+      <% end %>
+    </div>
 
     <div id="upload-widget" data-turbo-permanent data-controller="upload-widget" class="upload-capsule upload-capsule--hidden">
       <div class="upload-capsule__ring">
