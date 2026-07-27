@@ -264,9 +264,8 @@ a { color: inherit; text-decoration: none; }
 /* ---------- video show page ---------- */
 
 .player-wrap { border-radius: 12px; overflow: hidden; background: #000; box-shadow: 0 10px 30px rgba(var(--ink-rgb), .15); }
-.player-wrap + div { margin-top: 24px; }
 .player-wrap video { display: block; width: 100%; aspect-ratio: 16 / 9; }
-.video-title { font-family: var(--font-serif); font-size: 22px; font-weight: var(--title-weight); margin: 0; }
+.video-title { font-family: var(--font-serif); font-size: 22px; font-weight: var(--title-weight); margin: 20px 0 0; text-wrap: balance; }
 .video-meta { font-size: 13px; color: var(--muted); margin: 6px 0 0; }
 .video-meta__stat { font-family: var(--font-mono); font-variant-numeric: tabular-nums; color: var(--faint); }
 .video-channel-byline { display: flex; align-items: center; gap: 10px; margin-top: 10px; }
@@ -274,6 +273,27 @@ a { color: inherit; text-decoration: none; }
 .video-channel-link { font-size: 13.5px; color: var(--muted); display: inline-block; }
 .video-channel-link:hover { color: var(--accent); }
 .back-link { font-size: 13px; font-weight: 600; color: var(--accent); margin-top: 28px; display: inline-block; }
+
+/* ---------- watch page: theater split ---------- */
+
+.watch-layout { display: grid; grid-template-columns: 1fr 320px; gap: 32px; align-items: start; }
+@media (max-width: 900px) { .watch-layout { grid-template-columns: 1fr; } }
+
+.watch-rail__heading { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 0 0 16px; }
+.watch-rail__item { display: flex; gap: 10px; margin-bottom: 14px; }
+.watch-rail__thumb {
+  position: relative; width: 160px; aspect-ratio: 16 / 9; border-radius: 8px; overflow: hidden;
+  flex-shrink: 0; background: var(--surface-2); border: 1px solid var(--border);
+}
+.watch-rail__thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.watch-rail__body { min-width: 0; }
+.watch-rail__title {
+  font-size: 13px; font-weight: 600; margin: 0 0 4px; line-height: 1.3; color: var(--text);
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+.watch-rail__item:hover .watch-rail__title { color: var(--accent); }
+.watch-rail__sub { font-size: 11.5px; color: var(--faint); margin: 0; }
+.watch-rail__empty { font-size: 12.5px; color: var(--muted); }
 
 /* ---------- persistent upload widget: ring -> capsule ---------- */
 

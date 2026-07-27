@@ -1,0 +1,16 @@
+<%= link_to channel_video_path(video.channel, video), class: "watch-rail__item" do %>
+  <div class="watch-rail__thumb">
+    <% if video.thumbnail_url.present? %>
+      <%= image_tag video.thumbnail_url, alt: video.title, loading: "lazy" %>
+    <% else %>
+      <div class="video-card__thumb-fallback">
+        <span class="video-card__play"><svg viewBox="0 0 24 24"><path d="M6 4l14 8-14 8z"/></svg></span>
+      </div>
+    <% end %>
+  </div>
+  <div class="watch-rail__body">
+    <h4 class="watch-rail__title"><%= video.title %></h4>
+    <p class="watch-rail__sub"><%= video.channel.channel_name %></p>
+    <p class="watch-rail__sub"><span class="video-card__stat"><%= pluralize(video.video_views.size, "view") %></span> · <%= time_ago_in_words(video.created_at) %> ago</p>
+  </div>
+<% end %>

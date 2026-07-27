@@ -38,6 +38,8 @@ class VideosController < ApplicationController
     @video = @channel.videos.find(params[:id])
 
     redirect_to root_path, notice: "The video isn't ready to watch yet." and return unless @video.ready?
+
+    @related_videos = @channel.videos.ready.where.not(id: @video.id).includes(:video_views).order(created_at: :desc).limit(8)
   end
 
   private
