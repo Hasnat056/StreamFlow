@@ -29,10 +29,18 @@ class ChannelsController < ApplicationController
 
   def update
     if @channel.update(channel_params)
-      redirect_to channel_path(@channel), notice: "Channel updated successfully!"
+      respond_to do |format|
+        format.html { redirect_to channel_path(@channel), notice: "Channel updated successfully!" }
+        format.json { render json: { status: "ok", url: channel_path(@channel) }, status: :ok }
+      end
     else
-      @categories = Channel::CATEGORIES
-      render :edit, status: :unprocessable_entity
+      respond_to do |format|
+        format.html do
+          @categories = Channel::CATEGORIES
+          render :edit, status: :unprocessable_entity
+        end
+        format.json { render json: { status: "error", errors: @channel.errors.full_messages }, status: :unprocessable_entity }
+      end
     end
   end
 

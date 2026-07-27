@@ -4,23 +4,26 @@
 
 import { application } from "./application"
 
+import ChannelUpdateFormController from "./channel_update_form_controller"
+application.register("channel-update-form", ChannelUpdateFormController)
+
+import DropdownController from "./dropdown_controller"
+application.register("dropdown", DropdownController)
+
 import HelloController from "./hello_controller"
 application.register("hello", HelloController)
+
+import HlsPlayerController from "./hls_player_controller"
+application.register("hls-player", HlsPlayerController)
+
+import ThemeController from "./theme_controller"
+application.register("theme", ThemeController)
+
+import ToastController from "./toast_controller"
+application.register("toast", ToastController)
 
 import UploadWidgetController from "./upload_widget_controller"
 application.register("upload-widget", UploadWidgetController)
 
 import VideoUploadFormController from "./video_upload_form_controller"
 application.register("video-upload-form", VideoUploadFormController)
-
-import ToastController from "./toast_controller"
-application.register("toast", ToastController)
-
-import HlsPlayerController from "./hls_player_controller"
-application.register("hls-player", HlsPlayerController)
-
-import DropdownController from "./dropdown_controller"
-application.register("dropdown", DropdownController)
-
-import ThemeController from "./theme_controller"
-application.register("theme", ThemeController)

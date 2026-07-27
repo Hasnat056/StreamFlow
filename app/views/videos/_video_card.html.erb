@@ -10,7 +10,11 @@
     <span class="video-card__dur">--:--</span>
   </div>
   <div class="video-card__meta">
-    <div class="video-card__avatar"><%= video.channel.channel_name.first.upcase %></div>
+    <% if video.channel.avatar.attached? %>
+      <%= image_tag video.channel.avatar, class: "video-card__avatar" %>
+    <% else %>
+      <div class="video-card__avatar"><%= video.channel.channel_name.first.upcase %></div>
+    <% end %>
     <div>
       <h3 class="video-card__title"><%= video.title %></h3>
       <p class="video-card__sub"><b><%= video.channel.channel_name %></b></p>

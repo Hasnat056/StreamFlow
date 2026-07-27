@@ -1,10 +1,12 @@
-<% if @channel.banner.attached? %>
-  <div class="channel-banner">
-    <%= image_tag @channel.banner %>
-  </div>
+<% content_for :full_bleed do %>
+  <% if @channel.banner.attached? %>
+    <div class="channel-banner">
+      <%= image_tag @channel.banner %>
+    </div>
+  <% end %>
 <% end %>
 
-<div class="channel-header">
+<div class="channel-header <%= "channel-header--overlap" if @channel.banner.attached? %>">
   <% if @channel.avatar.attached? %>
     <%= image_tag @channel.avatar, class: "channel-header__avatar-img" %>
   <% else %>

@@ -1,12 +1,14 @@
-// Holds in-flight upload state independent of any single page/DOM element,
-// so it survives Turbo navigating between pages while an upload is running.
+// Holds in-flight background-task state independent of any single page/DOM
+// element, so it survives Turbo navigating between pages while a video
+// upload or channel update is running.
 import { DirectUpload } from "@rails/activestorage"
 
 let state = {
   status: "idle", // idle | uploading | success | error
-  filename: "",
+  label: "",
   progress: 0,
-  videoUrl: null,
+  resultUrl: null,
+  successMessage: "Uploaded successfully",
   errorMessage: null
 }
 
@@ -32,52 +34,112 @@ export function isUploading() {
 }
 
 export function dismiss() {
-  setState({ status: "idle", filename: "", progress: 0, videoUrl: null, errorMessage: null })
+  setState({ status: "idle", label: "", progress: 0, resultUrl: null, errorMessage: null })
 }
 
-export function startUpload({ file, title, directUploadUrl, createUrl }) {
+function csrfToken() {
+  return document.querySelector('meta[name="csrf-token"]')?.content
+}
+
+function directUpload(file, directUploadUrl, onProgress) {
+  return new Promise((resolve, reject) => {
+    const upload = new DirectUpload(file, directUploadUrl, {
+      directUploadWillStoreFileWithXHR(xhr) {
+        xhr.upload.addEventListener("progress", (event) => onProgress(event.loaded, event.total))
+      }
+    })
+
+    upload.create((error, blob) => {
+      if (error) reject(error)
+      else resolve(blob)
+    })
+  })
+}
+
+function finish(response, data) {
+  if (response.ok && data.status === "ok") {
+    setState({ status: "success", progress: 100, resultUrl: data.url })
+  } else {
+    setState({ status: "error", errorMessage: (data.errors || ["Something went wrong"]).join(", ") })
+  }
+}
+
+export function startVideoUpload({ file, title, directUploadUrl, createUrl }) {
   if (state.status === "uploading") return false
 
-  setState({ status: "uploading", filename: file.name, progress: 0, videoUrl: null, errorMessage: null })
-
-  const upload = new DirectUpload(file, directUploadUrl, {
-    directUploadWillStoreFileWithXHR(xhr) {
-      xhr.upload.addEventListener("progress", (event) => {
-        setState({ progress: Math.round((event.loaded / event.total) * 100) })
-      })
-    }
+  setState({
+    status: "uploading",
+    label: file.name,
+    progress: 0,
+    resultUrl: null,
+    successMessage: "Uploaded successfully",
+    errorMessage: null
   })
 
-  upload.create((error, blob) => {
-    if (error) {
-      setState({ status: "error", errorMessage: error.message || "Upload failed" })
-      return
-    }
-
-    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content
-
-    fetch(createUrl, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Accept": "application/json",
-        "X-CSRF-Token": csrfToken
-      },
-      credentials: "same-origin",
-      body: JSON.stringify({ video: { title, source_file: blob.signed_id } })
+  directUpload(file, directUploadUrl, (loaded, total) => {
+    setState({ progress: Math.round((loaded / total) * 100) })
+  })
+    .then((blob) =>
+      fetch(createUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Accept": "application/json", "X-CSRF-Token": csrfToken() },
+        credentials: "same-origin",
+        body: JSON.stringify({ video: { title, source_file: blob.signed_id } })
+      })
+    )
+    .then(async (response) => finish(response, await response.json()))
+    .catch((error) => {
+      setState({ status: "error", errorMessage: error.message || "Network error while saving the video" })
     })
-      .then(async (response) => {
-        const data = await response.json()
-        if (response.ok && data.status === "ok") {
-          setState({ status: "success", progress: 100, videoUrl: data.url })
-        } else {
-          setState({ status: "error", errorMessage: (data.errors || ["Something went wrong"]).join(", ") })
-        }
-      })
-      .catch(() => {
-        setState({ status: "error", errorMessage: "Network error while saving the video" })
-      })
+
+  return true
+}
+
+export function startChannelUpdate({ label, fields, avatarFile, bannerFile, directUploadUrl, updateUrl }) {
+  if (state.status === "uploading") return false
+
+  setState({
+    status: "uploading",
+    label,
+    progress: 0,
+    resultUrl: null,
+    successMessage: "Channel updated",
+    errorMessage: null
   })
+
+  const totalBytes = [ avatarFile, bannerFile ].filter(Boolean).reduce((sum, file) => sum + file.size, 0)
+  const loadedByFile = new Map()
+
+  function reportProgress() {
+    const loaded = [ ...loadedByFile.values() ].reduce((sum, n) => sum + n, 0)
+    setState({ progress: totalBytes ? Math.round((loaded / totalBytes) * 100) : 100 })
+  }
+
+  const uploadField = (file) =>
+    file
+      ? directUpload(file, directUploadUrl, (loaded) => {
+          loadedByFile.set(file, loaded)
+          reportProgress()
+        }).then((blob) => blob.signed_id)
+      : Promise.resolve(null)
+
+  Promise.all([ uploadField(avatarFile), uploadField(bannerFile) ])
+    .then(([ avatarSignedId, bannerSignedId ]) => {
+      const body = { channel: { ...fields } }
+      if (avatarSignedId) body.channel.avatar = avatarSignedId
+      if (bannerSignedId) body.channel.banner = bannerSignedId
+
+      return fetch(updateUrl, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json", "Accept": "application/json", "X-CSRF-Token": csrfToken() },
+        credentials: "same-origin",
+        body: JSON.stringify(body)
+      })
+    })
+    .then(async (response) => finish(response, await response.json()))
+    .catch((error) => {
+      setState({ status: "error", errorMessage: error.message || "Network error while updating the channel" })
+    })
 
   return true
 }

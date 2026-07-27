@@ -28,7 +28,7 @@ export default class extends Controller {
       return
     }
 
-    uploadManager.startUpload({
+    uploadManager.startVideoUpload({
       file,
       title,
       directUploadUrl: this.directUploadUrlValue,

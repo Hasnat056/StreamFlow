@@ -44,15 +44,15 @@ export default class extends Controller {
     this.barTarget.classList.toggle("upload-capsule__bar--visible", state.status === "uploading")
 
     if (state.status === "uploading") {
-      this.statusTarget.textContent = state.filename
+      this.statusTarget.textContent = state.label
     } else if (state.status === "success") {
-      this.statusTarget.textContent = "Uploaded successfully"
+      this.statusTarget.textContent = state.successMessage
     } else if (state.status === "error") {
-      this.statusTarget.textContent = state.errorMessage || "Upload failed"
+      this.statusTarget.textContent = state.errorMessage || "Something went wrong"
     }
 
-    if (state.status === "success" && state.videoUrl) {
-      this.linkTarget.href = state.videoUrl
+    if (state.status === "success" && state.resultUrl) {
+      this.linkTarget.href = state.resultUrl
       this.linkTarget.classList.remove("hidden")
     } else {
       this.linkTarget.classList.add("hidden")

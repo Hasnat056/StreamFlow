@@ -36,6 +36,7 @@
       <%= render "shared/sidebar" %>
 
       <main class="main">
+        <%= yield :full_bleed %>
         <div class="main-inner">
           <%= yield %>
         </div>
