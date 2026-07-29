@@ -1,0 +1,17 @@
+<div id="comment_<%= comment.id %>" class="comment">
+  <% if comment.user.avatar_url.present? %>
+    <%= image_tag comment.user.avatar_url, class: "comment__avatar" %>
+  <% else %>
+    <div class="comment__avatar"><%= comment.user.username.first.upcase %></div>
+  <% end %>
+
+  <div class="comment__body">
+    <%= form_with model: comment, url: channel_video_comments_path(video.channel, video), method: :post, class: "comment-form" do |f| %>
+      <%= f.text_area :comment_text, class: "field__textarea comment-form__input", rows: 2, required: true %>
+      <div class="comment-form__actions">
+        <%= f.submit "Save", class: "btn btn--primary" %>
+        <%= link_to "Cancel", channel_video_comment_path(video.channel, video, comment), class: "btn btn--ghost", data: { turbo_stream: true } %>
+      </div>
+    <% end %>
+  </div>
+</div>

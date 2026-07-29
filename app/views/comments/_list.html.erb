@@ -1,0 +1,11 @@
+<div id="comments_list" class="comments">
+  <h2 class="comments__heading"><%= pluralize(video.comments.size, "Comment") %></h2>
+
+  <% if current_user && !video.comments.exists?(user: current_user) %>
+    <%= render "comments/form", video: video %>
+  <% end %>
+
+  <% video.comments.includes(:user).order(created_at: :desc).each do |comment| %>
+    <%= render "comments/comment", video: video, comment: comment %>
+  <% end %>
+</div>

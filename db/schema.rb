@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_27_182136) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_29_051846) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "citext"
   enable_extension "pg_catalog.plpgsql"
@@ -63,10 +63,19 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_27_182136) do
     t.index ["user_id"], name: "index_channels_on_user_id"
   end
 
+  create_table "comment_likes", force: :cascade do |t|
+    t.bigint "comment_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["comment_id"], name: "index_comment_likes_on_comment_id"
+    t.index ["user_id", "comment_id"], name: "index_comment_likes_on_user_id_and_comment_id", unique: true
+    t.index ["user_id"], name: "index_comment_likes_on_user_id"
+  end
+
   create_table "comments", force: :cascade do |t|
     t.text "comment_text", null: false
     t.datetime "created_at", null: false
-    t.integer "likes", default: 0, null: false
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
     t.bigint "video_id", null: false
@@ -153,6 +162,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_27_182136) do
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "channels", "users", on_delete: :nullify
+  add_foreign_key "comment_likes", "comments", on_delete: :cascade
+  add_foreign_key "comment_likes", "users", on_delete: :cascade
   add_foreign_key "comments", "users", on_delete: :cascade
   add_foreign_key "comments", "videos", on_delete: :cascade
   add_foreign_key "subscriptions", "channels", on_delete: :cascade

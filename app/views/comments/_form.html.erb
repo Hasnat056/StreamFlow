@@ -1,0 +1,6 @@
+<%= form_with model: video.comments.build, url: channel_video_comments_path(video.channel, video), method: :post, class: "comment-form" do |f| %>
+  <%= f.text_area :comment_text, class: "field__textarea comment-form__input", placeholder: "Add a comment...", rows: 2, required: true %>
+  <div class="comment-form__actions">
+    <%= f.submit "Comment", class: "btn btn--primary" %>
+  </div>
+<% end %>

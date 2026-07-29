@@ -24,6 +24,9 @@ Rails.application.routes.draw do
     resources :videos, only: [ :new, :create, :show ] do
       resource :video_view, only: [ :create ]
       resource :video_like, only: [ :create, :destroy ]
+      resources :comments, only: [ :show, :create, :destroy, :edit ] do
+        resource :comment_like, only: [ :create, :destroy ]
+      end
     end
     resource :subscription, only: [ :create, :destroy ]
   end

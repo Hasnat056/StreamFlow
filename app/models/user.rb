@@ -3,6 +3,8 @@ class User < ApplicationRecord
 
   has_many :subscriptions, dependent: :destroy
   has_many :video_likes, dependent: :destroy
+  has_many :comments, dependent: :destroy
+  has_many :comment_likes, dependent: :destroy
   has_many :subscribed_channels, through: :subscriptions, source: :channel
 
 
@@ -12,6 +14,10 @@ class User < ApplicationRecord
 
   def liked?(video)
     video_likes.exists?(video_id: video.id)
+  end
+
+  def liked_comment?(comment)
+    comment_likes.exists?(comment_id: comment.id)
   end
 
   def self.find_or_create_from_omniauth(auth)
