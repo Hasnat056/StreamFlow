@@ -19,11 +19,13 @@ Rails.application.routes.draw do
   # Logout
   delete "/logout", to: "sessions#destroy"
 
+  get "/history", to: "watch_history#index", as: :watch_history
 
   resources :channels, only: [ :new, :create, :show, :edit, :update ] do
     resources :videos, only: [ :new, :create, :show ] do
       resource :video_view, only: [ :create ]
       resource :video_like, only: [ :create, :destroy ]
+      resource :watch_progress, only: [ :create ]
       resources :comments, only: [ :show, :create, :destroy, :edit ] do
         resource :comment_like, only: [ :create, :destroy ]
       end

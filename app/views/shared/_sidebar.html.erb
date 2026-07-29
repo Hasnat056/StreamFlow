@@ -17,6 +17,11 @@
     <% end %>
 
     <% if current_user %>
+      <%= link_to watch_history_path, class: "sidebar__nav-item #{'is-active' if current_page?(watch_history_path)}" do %>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="8.5"/><path d="M12 8v4.5l3 2"/></svg>
+        <span class="sidebar__nav-label">History</span>
+      <% end %>
+
       <% channel = current_user.channels.first %>
       <% if channel %>
         <%= link_to channel_path(channel), class: "sidebar__nav-item #{'is-active' if current_page?(channel_path(channel))}" do %>

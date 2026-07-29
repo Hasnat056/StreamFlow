@@ -1,0 +1,19 @@
+<h1 class="page-title">Watch history</h1>
+
+<% if @in_progress.present? %>
+  <p class="section-title">Continue watching</p>
+  <div class="rail">
+    <%= render partial: "watch_history/rail_card", collection: @in_progress, as: :progress %>
+  </div>
+<% end %>
+
+<p class="section-title">Watched</p>
+<% if @finished.present? %>
+  <div class="video-grid">
+    <%= render partial: "videos/video_card", collection: @finished.map(&:video), as: :video %>
+  </div>
+<% elsif @in_progress.blank? %>
+  <p class="empty-state">No watch history yet — videos you watch will show up here.</p>
+<% else %>
+  <p class="watch-rail__empty">No finished videos yet.</p>
+<% end %>

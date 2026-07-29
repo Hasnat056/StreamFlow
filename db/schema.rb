@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_29_051846) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_29_061500) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "citext"
   enable_extension "pg_catalog.plpgsql"
@@ -150,6 +150,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_29_051846) do
   end
 
   create_table "watch_progresses", force: :cascade do |t|
+    t.integer "duration_sec", null: false
     t.integer "last_timestamp_sec", null: false
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false

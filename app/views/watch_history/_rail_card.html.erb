@@ -1,0 +1,19 @@
+<% video = progress.video %>
+<div class="rail-card">
+  <%= link_to channel_video_path(video.channel, video), class: "thumb" do %>
+    <% if video.thumbnail_url.present? %>
+      <%= image_tag video.thumbnail_url, alt: video.title, loading: "lazy" %>
+    <% else %>
+      <div class="video-card__thumb-fallback">
+        <span class="video-card__play"><svg viewBox="0 0 24 24"><path d="M6 4l14 8-14 8z"/></svg></span>
+      </div>
+    <% end %>
+    <span class="thumb__dur"><%= format_duration(progress.duration_sec) %></span>
+    <div class="thumb__progress-track"><div class="thumb__progress-fill" style="width: <%= progress.percent_watched %>%"></div></div>
+    <div class="rail-card__resume">
+      <span class="rail-card__resume-btn"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 4l14 8-14 8z"/></svg>Resume</span>
+    </div>
+  <% end %>
+  <%= link_to video.title, channel_video_path(video.channel, video), class: "rail-card__title" %>
+  <p class="rail-card__sub"><%= video.channel.channel_name %> · <%= progress.percent_watched %>% watched</p>
+</div>

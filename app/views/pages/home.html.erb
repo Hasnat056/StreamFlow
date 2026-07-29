@@ -9,6 +9,7 @@
   <%= text_field_tag :q, @query, placeholder: "Search StreamFlow", class: "search-bar" %>
 <% end %>
 
+
 <section>
   <h2 class="section-title">
     <%= @query.present? ? "Results for “#{@query}”" : "Recently uploaded" %>
@@ -16,7 +17,7 @@
 
   <% if @recent_videos.present? %>
     <div class="video-grid">
-      <%= render partial: "videos/video_card", collection: @recent_videos, as: :video %>
+      <%= render partial: "videos/video_card", collection: @recent_videos, as: :video, locals: { watch_progress_by_video: @watch_progress_by_video } %>
     </div>
   <% elsif @query.present? %>
     <p class="empty-state">No videos match “<%= @query %>”.</p>

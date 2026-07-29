@@ -1,3 +1,4 @@
+<% progress = local_assigns[:watch_progress_by_video]&.[](video.id) %>
 <%= link_to channel_video_path(video.channel, video), class: "video-card" do %>
   <div class="video-card__thumb">
     <% if video.thumbnail_url.present? %>
@@ -8,6 +9,9 @@
       </div>
     <% end %>
     <span class="video-card__dur">--:--</span>
+    <% if progress %>
+      <div class="thumb__progress-track"><div class="thumb__progress-fill" style="width: <%= progress.percent_watched %>%"></div></div>
+    <% end %>
   </div>
   <div class="video-card__meta">
     <% if video.channel.avatar.attached? %>

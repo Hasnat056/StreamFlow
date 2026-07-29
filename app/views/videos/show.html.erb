@@ -6,6 +6,10 @@
         data-controller="hls-player"
         data-hls-player-src-value="<%= @video.active_playlist.master_file_url %>"
         data-hls-player-view-url-value="<%= channel_video_video_view_path(@channel, @video) %>"
+        <% if current_user %>
+          data-hls-player-watch-progress-url-value="<%= channel_video_watch_progress_path(@channel, @video) %>"
+          data-hls-player-resume-at-value="<%= @watch_progress&.resumable? ? @watch_progress.last_timestamp_sec : 0 %>"
+        <% end %>
       ></video>
     </div>
 
