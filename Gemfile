@@ -85,3 +85,4 @@ gem "redis"
 
 # Ruby wrapper around FFmpeg
 gem "streamio-ffmpeg"
+gem "sidekiq-cron", "~> 2.4"

@@ -2,6 +2,10 @@ import { Controller } from "@hotwired/stimulus"
 import Hls from "hls.js"
 
 const PROGRESS_SAVE_INTERVAL_SEC = 5
+// A timeupdate tick's position jump only counts as "watched" if it's roughly
+// real-time playback speed — a bigger jump means the user seeked, which isn't
+// watch time.
+const MAX_TICK_DELTA_SEC = 1.5
 
 export default class extends Controller {
     static values = {
@@ -24,9 +28,12 @@ export default class extends Controller {
 
         this.viewRecorded = false
         this.lastSavedTime = 0
+        this.lastTickPosition = null
+        this.watchedSinceLastSave = 0
 
         this.onTimeUpdate = () => {
             this.checkViewThreshold()
+            this.accumulateWatchedTime()
             this.maybeSaveProgress()
         }
         video.addEventListener("timeupdate", this.onTimeUpdate)
@@ -72,6 +79,17 @@ export default class extends Controller {
         })
     }
 
+    accumulateWatchedTime() {
+        const pos = this.element.currentTime
+        if (this.lastTickPosition !== null) {
+            const delta = pos - this.lastTickPosition
+            if (delta > 0 && delta < MAX_TICK_DELTA_SEC) {
+                this.watchedSinceLastSave += delta
+            }
+        }
+        this.lastTickPosition = pos
+    }
+
     maybeSaveProgress() {
         const video = this.element
         if (!video.duration || !isFinite(video.duration)) return
@@ -86,11 +104,15 @@ export default class extends Controller {
 
         this.lastSavedTime = video.currentTime
 
+        const secondsWatched = Math.round(this.watchedSinceLastSave)
+        this.watchedSinceLastSave = 0
+
         const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content
         const body = new URLSearchParams({
             authenticity_token: csrfToken,
             last_timestamp_sec: Math.floor(video.currentTime),
-            duration_sec: Math.floor(video.duration)
+            duration_sec: Math.floor(video.duration),
+            seconds_watched: secondsWatched
         }).toString()
 
         if (useBeacon && navigator.sendBeacon) {

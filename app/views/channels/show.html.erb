@@ -16,6 +16,7 @@
   <div class="channel-header__body">
     <h1 class="channel-header__name"><%= @channel.channel_name %></h1>
     <span class="badge"><%= @channel.category %></span>
+    <span class="badge"><%= pluralize(@channel.subscribers.count, "subscriber") %></span>
 
     <% if @channel.description.present? %>
       <p class="channel-header__desc"><%= @channel.description %></p>
@@ -34,11 +35,19 @@
       <% if current_user == @channel.user %>
         <%= link_to "📹 Upload video", new_channel_video_path(@channel), class: "btn btn--primary" %>
         <%= link_to "Edit channel", edit_channel_path(@channel), class: "btn btn--ghost" %>
+        <%= link_to "Analytics", channel_analytics_path(@channel), class: "btn btn--ghost" %>
       <% else %>
         <%= render "shared/subscribe_button", channel: @channel %>
       <% end %>
     </div>
 </div>
+
+<% if current_user == @channel.user %>
+  <section>
+    <h2 class="section-title">In process</h2>
+    <%= render "channels/in_process_videos", channel: @channel %>
+  </section>
+<% end %>
 
 <section>
   <h2 class="section-title">Videos</h2>

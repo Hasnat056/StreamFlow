@@ -4,6 +4,9 @@
 
 import { application } from "./application"
 
+import AnalyticsController from "./analytics_controller"
+application.register("analytics", AnalyticsController)
+
 import ChannelUpdateFormController from "./channel_update_form_controller"
 application.register("channel-update-form", ChannelUpdateFormController)
 

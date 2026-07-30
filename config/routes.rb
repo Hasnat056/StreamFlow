@@ -31,6 +31,7 @@ Rails.application.routes.draw do
       end
     end
     resource :subscription, only: [ :create, :destroy ]
+    resource :analytics, only: [ :show ], controller: "channel_analytics"
   end
 
 

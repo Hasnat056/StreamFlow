@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_29_061500) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_29_080100) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "citext"
   enable_extension "pg_catalog.plpgsql"
@@ -146,7 +146,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_29_061500) do
     t.text "thumbnail_url"
     t.string "title", null: false
     t.datetime "updated_at", null: false
+    t.bigint "watch_time", default: 0, null: false
     t.index ["channel_id"], name: "index_videos_on_channel_id"
+  end
+
+  create_table "watch_events", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.integer "seconds_watched", null: false
+    t.bigint "user_id"
+    t.bigint "video_id", null: false
+    t.index ["user_id"], name: "index_watch_events_on_user_id"
+    t.index ["video_id"], name: "index_watch_events_on_video_id"
   end
 
   create_table "watch_progresses", force: :cascade do |t|
@@ -175,6 +185,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_29_061500) do
   add_foreign_key "video_views", "users", on_delete: :cascade
   add_foreign_key "video_views", "videos", on_delete: :cascade
   add_foreign_key "videos", "channels", on_delete: :cascade
+  add_foreign_key "watch_events", "users", on_delete: :cascade
+  add_foreign_key "watch_events", "videos", on_delete: :cascade
   add_foreign_key "watch_progresses", "users", on_delete: :cascade
   add_foreign_key "watch_progresses", "videos", on_delete: :cascade
 end

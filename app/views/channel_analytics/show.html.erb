@@ -1,0 +1,145 @@
+<div
+  data-controller="analytics"
+  data-analytics-daily-views-value="<%= @daily_views.to_json %>"
+  data-analytics-daily-subscribers-value="<%= @daily_subscribers.to_json %>"
+  data-analytics-completion-buckets-value="<%= @completion_buckets.to_json %>"
+>
+  <%= link_to "← Back to channel", channel_path(@channel), class: "back-link back-link--top" %>
+
+  <div class="page-head">
+    <h1 class="page-title">Channel analytics</h1>
+    <div class="range-filter">
+      <button type="button" class="range-filter__btn is-active" data-action="analytics#setRange" data-range="7">7d</button>
+      <button type="button" class="range-filter__btn" data-action="analytics#setRange" data-range="30">30d</button>
+      <button type="button" class="range-filter__btn" data-action="analytics#setRange" data-range="90">90d</button>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button type="button" class="tab-btn is-active" data-action="analytics#switchTab" data-tab="overview">Overview</button>
+    <button type="button" class="tab-btn" data-action="analytics#switchTab" data-tab="videos">Videos</button>
+  </div>
+
+  <div class="tab-panel is-active" data-analytics-target="tabPanelOverview">
+    <div class="stat-row">
+      <div class="stat-tile">
+        <p class="stat-tile__label">Total views</p>
+        <p class="stat-tile__value" data-analytics-target="statViews">—</p>
+        <p class="stat-tile__delta stat-tile__delta--up" data-analytics-target="statViewsDelta"></p>
+      </div>
+      <div class="stat-tile">
+        <p class="stat-tile__label">Subscribers</p>
+        <p class="stat-tile__value" data-analytics-target="statSubs">—</p>
+        <p class="stat-tile__delta" data-analytics-target="statSubsDelta"></p>
+      </div>
+      <div class="stat-tile">
+        <p class="stat-tile__label">Total videos</p>
+        <p class="stat-tile__value"><%= @total_videos %></p>
+        <p class="stat-tile__delta"><%= @processing_count %> processing</p>
+      </div>
+      <div class="stat-tile">
+        <p class="stat-tile__label">Total likes</p>
+        <p class="stat-tile__value"><%= @total_likes %></p>
+      </div>
+      <div class="stat-tile">
+        <p class="stat-tile__label">Watch time</p>
+        <p class="stat-tile__value"><%= format_watch_time(@total_watch_seconds) %></p>
+        <p class="stat-tile__delta">all time</p>
+      </div>
+    </div>
+
+    <div class="panel panel--split">
+      <div>
+        <p class="panel__title">Views</p>
+        <p class="panel__sub">Daily views across all videos</p>
+        <div class="chart-wrap" data-analytics-target="viewsChart"></div>
+      </div>
+      <div>
+        <p class="panel__title">Top videos</p>
+        <p class="panel__sub">By total views</p>
+        <div class="rank-list">
+          <% max_views = @top_videos.map { |r| r[:views] }.max.to_i.nonzero? || 1 %>
+          <% @top_videos.each_with_index do |row, i| %>
+            <div class="rank-row">
+              <span class="rank-row__num"><%= i + 1 %></span>
+              <div class="rank-row__body">
+                <p class="rank-row__title"><%= row[:video].title %></p>
+                <div class="rank-row__track"><div class="rank-row__fill" style="width: <%= (row[:views].to_f / max_views * 100).round %>%"></div></div>
+              </div>
+              <span class="rank-row__value"><%= row[:views] %></span>
+            </div>
+          <% end %>
+          <% if @top_videos.empty? %>
+            <p class="empty-state">No views yet.</p>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <p class="panel__title">Subscribers</p>
+      <p class="panel__sub">Cumulative subscriber count</p>
+      <div class="chart-wrap" data-analytics-target="subsChart"></div>
+    </div>
+
+    <div class="panel-row">
+      <div class="panel">
+        <p class="panel__title">Views by day of week</p>
+        <p class="panel__sub">Average views, selected period</p>
+        <div class="chart-wrap" data-analytics-target="weekdayChart"></div>
+      </div>
+      <div class="panel">
+        <p class="panel__title">Watch completion</p>
+        <p class="panel__sub">Viewers by % of video watched, all time</p>
+        <div class="chart-wrap" data-analytics-target="completionChart"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-panel" data-analytics-target="tabPanelVideos">
+    <div class="panel">
+      <p class="panel__title">Video status</p>
+      <p class="panel__sub">All videos on this channel</p>
+      <div class="donut-panel">
+        <div class="donut-wrap">
+          <% total_video_count = @video_status_counts.values.sum %>
+          <% cursor = 0 %>
+          <% stops = @video_status_counts.filter_map do |status, count|
+               next if count.zero?
+               start_pct = cursor.to_f / total_video_count * 100
+               cursor += count
+               end_pct = cursor.to_f / total_video_count * 100
+               "#{status_color(status)} #{start_pct}% #{end_pct}%"
+             end.join(", ") %>
+          <div class="donut" style="background: conic-gradient(<%= stops %>)"></div>
+          <div class="donut__hole"><span class="donut__total"><%= total_video_count %></span><span class="donut__total-label">videos</span></div>
+        </div>
+        <ul class="donut-legend">
+          <% @video_status_counts.each do |status, count| %>
+            <li><span class="legend-dot" style="background: <%= status_color(status) %>"></span><%= status.humanize %> · <%= count %></li>
+          <% end %>
+        </ul>
+      </div>
+    </div>
+
+    <div class="panel">
+      <p class="panel__title">All videos</p>
+      <p class="panel__sub">Lifetime totals</p>
+      <table class="videos-table">
+        <thead><tr><th>Video</th><th>Status</th><th>Views</th><th>Likes</th><th>Comments</th><th>Avg. watched</th></tr></thead>
+        <tbody>
+          <% @video_rows.each do |row| %>
+            <tr>
+              <td><%= row[:video].title %></td>
+              <td><span class="status-chip <%= status_chip_class(row[:video].status) %>"><%= row[:video].status.humanize %></span></td>
+              <td><%= row[:video].ready? ? row[:views] : "—" %></td>
+              <td><%= row[:video].ready? ? row[:likes] : "—" %></td>
+              <td><%= row[:video].ready? ? row[:comments] : "—" %></td>
+              <td><%= row[:video].ready? ? "#{row[:avg_watched]}%" : "—" %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

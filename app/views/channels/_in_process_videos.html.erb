@@ -1,0 +1,15 @@
+<div id="in_process_videos">
+  <% in_process = channel.videos.where.not(status: :ready).order(created_at: :desc) %>
+  <% if in_process.present? %>
+    <div class="in-process-list">
+      <% in_process.each do |video| %>
+        <div class="in-process-row">
+          <span class="in-process-row__title"><%= video.title %></span>
+          <span class="status-chip <%= status_chip_class(video.status) %>"><%= video.status.humanize %></span>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <p class="empty-state">Nothing processing right now.</p>
+  <% end %>
+</div>

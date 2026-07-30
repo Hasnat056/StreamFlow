@@ -6,6 +6,7 @@ class Video < ApplicationRecord
   has_many :video_views, dependent: :destroy
   has_many :video_likes, dependent: :destroy
   has_many :watch_progresses, dependent: :destroy
+  has_many :watch_events, dependent: :destroy
   has_many :comments, dependent: :destroy
 
   has_one_attached :source_file
@@ -47,6 +48,8 @@ class Video < ApplicationRecord
     event :mark_as_failed do
       transitions from: %i[upload_pending uploaded processing], to: :failed
     end
+
+    after_all_transitions :broadcast_in_process_update
   end
 
 
@@ -60,5 +63,19 @@ class Video < ApplicationRecord
 
   def thumbnail_key
     "videos/#{id}/thumbnail.jpg"
+  end
+
+  private
+
+  # Keeps the owner-only "in-process videos" panel on the channel page live —
+  # broadcasts on every AASM transition (upload_pending -> uploaded -> processing
+  # -> ready/failed), not just completion, so the status chip updates in place.
+  def broadcast_in_process_update
+    Turbo::StreamsChannel.broadcast_replace_to(
+      "user_#{channel.user_id}_notifications",
+      target: "in_process_videos",
+      partial: "channels/in_process_videos",
+      locals: { channel: channel }
+    )
   end
 end
