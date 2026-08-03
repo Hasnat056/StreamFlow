@@ -50,8 +50,8 @@ class ChannelAnalyticsController < ApplicationController
 
   def completion_buckets(video_ids)
     buckets = { "0–25%" => 0, "25–50%" => 0, "50–75%" => 0, "75–100%" => 0 }
-    WatchProgress.where(video_id: video_ids).pluck(:last_timestamp_sec, :duration_sec).each do |last_sec, duration_sec|
-      next unless duration_sec.positive?
+    WatchProgress.joins(:video).where(video_id: video_ids).pluck(:last_timestamp_sec, "videos.duration_sec").each do |last_sec, duration_sec|
+      next unless duration_sec&.positive?
 
       pct = (last_sec.to_f / duration_sec * 100).clamp(0, 100)
       key = case pct
@@ -83,9 +83,9 @@ class ChannelAnalyticsController < ApplicationController
   end
 
   def average_watched_by_video(video_ids)
-    rows = WatchProgress.where(video_id: video_ids).pluck(:video_id, :last_timestamp_sec, :duration_sec)
+    rows = WatchProgress.joins(:video).where(video_id: video_ids).pluck(:video_id, :last_timestamp_sec, "videos.duration_sec")
     rows.group_by { |(vid, _, _)| vid }.transform_values do |video_rows|
-      percents = video_rows.map { |(_, last_sec, duration_sec)| duration_sec.positive? ? (last_sec.to_f / duration_sec * 100).clamp(0, 100) : 0 }
+      percents = video_rows.map { |(_, last_sec, duration_sec)| duration_sec&.positive? ? (last_sec.to_f / duration_sec * 100).clamp(0, 100) : 0 }
       (percents.sum / percents.size).round
     end
   end

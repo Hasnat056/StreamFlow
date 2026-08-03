@@ -9,7 +9,7 @@
         <span class="video-card__play"><svg viewBox="0 0 24 24"><path d="M6 4l14 8-14 8z"/></svg></span>
       </div>
     <% end %>
-    <span class="video-card__dur">--:--</span>
+    <span class="video-card__dur"><%= video.duration_sec.present? ? format_duration(video.duration_sec) : "--:--" %></span>
     <% if progress %>
       <div class="thumb__progress-track"><div class="thumb__progress-fill" style="width: <%= progress.percent_watched %>%"></div></div>
     <% end %>

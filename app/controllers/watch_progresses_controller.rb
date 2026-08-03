@@ -10,7 +10,6 @@ class WatchProgressesController < ApplicationController
   def create
     progress = @video.watch_progresses.find_or_initialize_by(user: current_user)
     progress.last_timestamp_sec = params[:last_timestamp_sec]
-    progress.duration_sec = params[:duration_sec]
     progress.save
 
     seconds_watched = params[:seconds_watched].to_i.clamp(0, MAX_SECONDS_WATCHED_PER_SAVE)

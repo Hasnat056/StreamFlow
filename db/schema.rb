@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_31_074440) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_03_142607) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "citext"
   enable_extension "pg_catalog.plpgsql"
@@ -140,6 +140,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_31_074440) do
     t.bigint "channel_id", null: false
     t.datetime "created_at", null: false
     t.text "description"
+    t.integer "duration_sec"
     t.text "processing_error"
     t.enum "status", default: "upload_pending", null: false, enum_type: "video_status"
     t.text "tags", default: [], null: false, array: true
@@ -160,7 +161,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_31_074440) do
   end
 
   create_table "watch_progresses", force: :cascade do |t|
-    t.integer "duration_sec", null: false
     t.integer "last_timestamp_sec", null: false
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false

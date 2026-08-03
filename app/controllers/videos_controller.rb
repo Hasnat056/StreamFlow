@@ -46,8 +46,7 @@ class VideosController < ApplicationController
         (SELECT COUNT(*) FROM video_views WHERE video_views.video_id = videos.id) AS views_count,
         (SELECT COUNT(*) FROM video_likes WHERE video_likes.video_id = videos.id) AS likes_count,
         video_playlists.master_file_url AS playlist_master_file_url,
-        watch_progresses.last_timestamp_sec AS wp_last_timestamp_sec,
-        watch_progresses.duration_sec AS wp_duration_sec
+        watch_progresses.last_timestamp_sec AS wp_last_timestamp_sec
       SQL
       .joins("LEFT JOIN video_playlists ON video_playlists.video_id = videos.id AND video_playlists.is_active = true")
       .joins(watch_progress_join)

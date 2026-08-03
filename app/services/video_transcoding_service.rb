@@ -1,3 +1,4 @@
+
 # frozen_string_literal: true
 class VideoTranscodingService
   RENDITION_LADDER = [
@@ -29,7 +30,9 @@ class VideoTranscodingService
 
       master_url = master_playlist_url(prefix)
       activate_new_playlist(master_url, version)
-      @video.update!(thumbnail_url: thumbnail_url) if thumbnail_url
+      attrs = { duration_sec: movie.duration.round }
+      attrs[:thumbnail_url] = thumbnail_url if thumbnail_url
+      @video.update!(attrs)
       @video.complete_processing!
       broadcast_ready_notification
     end

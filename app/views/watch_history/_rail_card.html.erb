@@ -8,7 +8,7 @@
         <span class="video-card__play"><svg viewBox="0 0 24 24"><path d="M6 4l14 8-14 8z"/></svg></span>
       </div>
     <% end %>
-    <span class="thumb__dur"><%= format_duration(progress.duration_sec) %></span>
+    <span class="thumb__dur"><%= video.duration_sec.present? ? format_duration(video.duration_sec) : "--:--" %></span>
     <div class="thumb__progress-track"><div class="thumb__progress-fill" style="width: <%= progress.percent_watched %>%"></div></div>
     <div class="rail-card__resume">
       <span class="rail-card__resume-btn"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 4l14 8-14 8z"/></svg>Resume</span>

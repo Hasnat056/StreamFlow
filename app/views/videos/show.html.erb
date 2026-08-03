@@ -7,7 +7,7 @@
         data-hls-player-src-value="<%= @video.playlist_master_file_url %>"
         data-hls-player-view-url-value="<%= channel_video_video_view_path(@channel, @video) %>"
         <% if current_user %>
-          <% resumable = @video.wp_last_timestamp_sec.present? && (@video.wp_last_timestamp_sec.to_f / @video.wp_duration_sec) < WatchProgress::RESUMABLE_THRESHOLD %>
+          <% resumable = @video.wp_last_timestamp_sec.present? && (@video.wp_last_timestamp_sec.to_f / @video.duration_sec) < WatchProgress::RESUMABLE_THRESHOLD %>
           data-hls-player-watch-progress-url-value="<%= channel_video_watch_progress_path(@channel, @video) %>"
           data-hls-player-resume-at-value="<%= resumable ? @video.wp_last_timestamp_sec : 0 %>"
         <% end %>
