@@ -3,13 +3,14 @@ import { Turbo } from "@hotwired/turbo-rails"
 import * as uploadManager from "../lib/upload_manager"
 
 // Mirrors video-upload-form: hands avatar/banner off to upload_manager and
-// leaves the page immediately - the update keeps running in the background
-// regardless of where the user goes.
+// leaves the page immediately - the create/update keeps running in the
+// background regardless of where the user goes.
 export default class extends Controller {
   static targets = [ "channelName", "category", "description", "tagsInput", "avatar", "banner", "warning" ]
   static values = {
     directUploadUrl: String,
-    updateUrl: String,
+    submitUrl: String,
+    httpMethod: String,
     redirectUrl: String
   }
 
@@ -27,8 +28,13 @@ export default class extends Controller {
       return
     }
 
-    uploadManager.startChannelUpdate({
-      label: `Updating "${channelName}"…`,
+    const isUpdate = this.httpMethodValue === "PATCH"
+
+    uploadManager.startChannelSave({
+      label: isUpdate ? `Updating "${channelName}"…` : `Creating "${channelName}"…`,
+      successMessage: isUpdate ? "Channel updated" : "Channel created",
+      method: this.httpMethodValue,
+      submitUrl: this.submitUrlValue,
       fields: {
         channel_name: channelName,
         category: this.categoryTarget.value,
@@ -37,8 +43,7 @@ export default class extends Controller {
       },
       avatarFile: this.avatarTarget.files[0] || null,
       bannerFile: this.bannerTarget.files[0] || null,
-      directUploadUrl: this.directUploadUrlValue,
-      updateUrl: this.updateUrlValue
+      directUploadUrl: this.directUploadUrlValue
     })
 
     Turbo.visit(this.redirectUrlValue)

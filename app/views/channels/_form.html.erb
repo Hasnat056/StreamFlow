@@ -10,14 +10,15 @@
 <% end %>
 
 <%= form_with model: @channel,
-      local: @channel.persisted?,
-      data: (@channel.persisted? ? {
+      local: true,
+      data: {
         controller: "channel-update-form",
         action: "submit->channel-update-form#submit",
         channel_update_form_direct_upload_url_value: rails_direct_uploads_path,
-        channel_update_form_update_url_value: channel_path(@channel, format: :json),
-        channel_update_form_redirect_url_value: channel_path(@channel)
-      } : {}) do |f| %>
+        channel_update_form_submit_url_value: @channel.persisted? ? channel_path(@channel, format: :json) : channels_path(format: :json),
+        channel_update_form_http_method_value: @channel.persisted? ? "PATCH" : "POST",
+        channel_update_form_redirect_url_value: @channel.persisted? ? channel_path(@channel) : root_path
+      } do |f| %>
   <div class="field">
     <%= f.label :channel_name, "Channel name *", class: "field__label" %>
     <%= f.text_field :channel_name, placeholder: "e.g. Hasnat's Tech Corner", required: true, class: "field__input", data: { channel_update_form_target: "channelName" } %>
@@ -45,9 +46,9 @@
     <%= f.label :avatar, class: "field__label" do %>
       Avatar <span class="field__optional">(optional)</span>
     <% end %>
-    <% if @channel.avatar.attached? %>
+    <% if @channel.channel_avatar_url.present? %>
       <div class="field__preview">
-        <%= image_tag @channel.avatar, class: "field__preview-avatar" %>
+        <%= image_tag @channel.channel_avatar_url, class: "field__preview-avatar" %>
       </div>
     <% end %>
     <%= f.file_field :avatar, accept: "image/*", class: "field__file", data: { channel_update_form_target: "avatar" } %>
@@ -57,17 +58,15 @@
     <%= f.label :banner, class: "field__label" do %>
       Banner <span class="field__optional">(optional)</span>
     <% end %>
-    <% if @channel.banner.attached? %>
+    <% if @channel.channel_banner_url.present? %>
       <div class="field__preview">
-        <%= image_tag @channel.banner, class: "field__preview-banner" %>
+        <%= image_tag @channel.channel_banner_url, class: "field__preview-banner" %>
       </div>
     <% end %>
     <%= f.file_field :banner, accept: "image/*", class: "field__file", data: { channel_update_form_target: "banner" } %>
   </div>
 
-  <% if @channel.persisted? %>
-    <p class="hidden field__warning" data-channel-update-form-target="warning"></p>
-  <% end %>
+  <p class="hidden field__warning" data-channel-update-form-target="warning"></p>
 
   <%= f.submit (@channel.persisted? ? "Save changes" : "Create channel"), class: "btn btn--primary btn--block" %>
 <% end %>

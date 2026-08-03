@@ -1,14 +1,14 @@
 <% content_for :full_bleed do %>
-  <% if @channel.banner.attached? %>
+  <% if @channel.channel_banner_url.present? %>
     <div class="channel-banner">
-      <%= image_tag @channel.banner %>
+      <%= image_tag @channel.channel_banner_url %>
     </div>
   <% end %>
 <% end %>
 
-<div class="channel-header <%= "channel-header--overlap" if @channel.banner.attached? %>">
-  <% if @channel.avatar.attached? %>
-    <%= image_tag @channel.avatar, class: "channel-header__avatar-img" %>
+<div class="channel-header <%= "channel-header--overlap" if @channel.channel_banner_url.present? %>">
+  <% if @channel.channel_avatar_url.present? %>
+    <%= image_tag @channel.channel_avatar_url, class: "channel-header__avatar-img" %>
   <% else %>
     <div class="channel-header__avatar"><%= @channel.channel_name.first.upcase %></div>
   <% end %>
@@ -54,7 +54,7 @@
 
   <% if @videos.present? %>
     <div class="video-grid">
-      <%= render partial: "videos/video_card", collection: @videos, as: :video %>
+      <%= render partial: "videos/video_card", collection: @videos, as: :video, locals: { views_by_video: @views_by_video } %>
     </div>
   <% else %>
     <p class="empty-state">No videos yet.</p>

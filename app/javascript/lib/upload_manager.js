@@ -95,7 +95,7 @@ export function startVideoUpload({ file, title, directUploadUrl, createUrl }) {
   return true
 }
 
-export function startChannelUpdate({ label, fields, avatarFile, bannerFile, directUploadUrl, updateUrl }) {
+export function startChannelSave({ label, successMessage, method, submitUrl, fields, avatarFile, bannerFile, directUploadUrl }) {
   if (state.status === "uploading") return false
 
   setState({
@@ -103,7 +103,7 @@ export function startChannelUpdate({ label, fields, avatarFile, bannerFile, dire
     label,
     progress: 0,
     resultUrl: null,
-    successMessage: "Channel updated",
+    successMessage,
     errorMessage: null
   })
 
@@ -129,8 +129,8 @@ export function startChannelUpdate({ label, fields, avatarFile, bannerFile, dire
       if (avatarSignedId) body.channel.avatar = avatarSignedId
       if (bannerSignedId) body.channel.banner = bannerSignedId
 
-      return fetch(updateUrl, {
-        method: "PATCH",
+      return fetch(submitUrl, {
+        method,
         headers: { "Content-Type": "application/json", "Accept": "application/json", "X-CSRF-Token": csrfToken() },
         credentials: "same-origin",
         body: JSON.stringify(body)
@@ -138,7 +138,7 @@ export function startChannelUpdate({ label, fields, avatarFile, bannerFile, dire
     })
     .then(async (response) => finish(response, await response.json()))
     .catch((error) => {
-      setState({ status: "error", errorMessage: error.message || "Network error while updating the channel" })
+      setState({ status: "error", errorMessage: error.message || "Network error while saving the channel" })
     })
 
   return true

@@ -9,17 +9,26 @@ class ChannelsController < ApplicationController
 
   def show
     @channel = Channel.find(params[:id])
-    @videos = @channel.videos.ready.includes(:video_views).order(created_at: :desc)
+    @videos = @channel.videos.ready.order(created_at: :desc)
+    @views_by_video = VideoView.where(video_id: @videos.map(&:id)).group(:video_id).count
   end
 
   def create
     @channel = current_user.channels.build(channel_params)
 
     if @channel.save
-      redirect_to root_path, notice: "🎉 Channel '#{@channel.channel_name}' created successfully!"
+      respond_to do |format|
+        format.html { redirect_to root_path, notice: "🎉 Channel '#{@channel.channel_name}' created successfully!" }
+        format.json { render json: { status: "ok", url: root_path }, status: :created }
+      end
     else
-      @categories = Channel::CATEGORIES # Re-populate dropdown on validation error
-      render :new, status: :unprocessable_entity
+      respond_to do |format|
+        format.html do
+          @categories = Channel::CATEGORIES # Re-populate dropdown on validation error
+          render :new, status: :unprocessable_entity
+        end
+        format.json { render json: { status: "error", errors: @channel.errors.full_messages }, status: :unprocessable_entity }
+      end
     end
   end
 
