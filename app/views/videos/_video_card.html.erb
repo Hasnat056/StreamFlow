@@ -1,4 +1,5 @@
 <% progress = local_assigns[:watch_progress_by_video]&.[](video.id) %>
+<% views = local_assigns[:views_by_video]&.[](video.id) || video.video_views.size %>
 <%= link_to channel_video_path(video.channel, video), class: "video-card" do %>
   <div class="video-card__thumb">
     <% if video.thumbnail_url.present? %>
@@ -14,15 +15,15 @@
     <% end %>
   </div>
   <div class="video-card__meta">
-    <% if video.channel.avatar.attached? %>
-      <%= image_tag video.channel.avatar, class: "video-card__avatar" %>
+    <% if video.channel.channel_avatar_url.present? %>
+      <%= image_tag video.channel.channel_avatar_url, class: "video-card__avatar" %>
     <% else %>
       <div class="video-card__avatar"><%= video.channel.channel_name.first.upcase %></div>
     <% end %>
     <div>
       <h3 class="video-card__title"><%= video.title %></h3>
       <p class="video-card__sub"><b><%= video.channel.channel_name %></b></p>
-      <p class="video-card__sub"><span class="video-card__stat"><%= pluralize(video.video_views.size, "view") %></span> · <%= time_ago_in_words(video.created_at) %> ago</p>
+      <p class="video-card__sub"><span class="video-card__stat"><%= pluralize(views, "view") %></span> · <%= time_ago_in_words(video.created_at) %> ago</p>
     </div>
   </div>
 <% end %>

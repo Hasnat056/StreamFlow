@@ -17,7 +17,7 @@
 
   <% if @recent_videos.present? %>
     <div class="video-grid">
-      <%= render partial: "videos/video_card", collection: @recent_videos, as: :video, locals: { watch_progress_by_video: @watch_progress_by_video } %>
+      <%= render partial: "videos/video_card", collection: @recent_videos, as: :video, locals: { watch_progress_by_video: @watch_progress_by_video, views_by_video: @views_by_video } %>
     </div>
   <% elsif @query.present? %>
     <p class="empty-state">No videos match “<%= @query %>”.</p>

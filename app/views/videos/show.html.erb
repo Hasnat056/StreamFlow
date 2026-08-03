@@ -4,20 +4,21 @@
       <video
         controls
         data-controller="hls-player"
-        data-hls-player-src-value="<%= @video.active_playlist.master_file_url %>"
+        data-hls-player-src-value="<%= @video.playlist_master_file_url %>"
         data-hls-player-view-url-value="<%= channel_video_video_view_path(@channel, @video) %>"
         <% if current_user %>
+          <% resumable = @video.wp_last_timestamp_sec.present? && (@video.wp_last_timestamp_sec.to_f / @video.wp_duration_sec) < WatchProgress::RESUMABLE_THRESHOLD %>
           data-hls-player-watch-progress-url-value="<%= channel_video_watch_progress_path(@channel, @video) %>"
-          data-hls-player-resume-at-value="<%= @watch_progress&.resumable? ? @watch_progress.last_timestamp_sec : 0 %>"
+          data-hls-player-resume-at-value="<%= resumable ? @video.wp_last_timestamp_sec : 0 %>"
         <% end %>
       ></video>
     </div>
 
     <h1 class="video-title"><%= @video.title %></h1>
-    <p class="video-meta"><span class="video-meta__stat"><%= pluralize(@video.video_views.size, "view") %></span> · <%= time_ago_in_words(@video.created_at) %> ago</p>
+    <p class="video-meta"><span class="video-meta__stat"><%= pluralize(@video.views_count, "view") %></span> · <%= time_ago_in_words(@video.created_at) %> ago</p>
     <div class="video-channel-byline">
-      <% if @channel.avatar.attached? %>
-        <%= image_tag @channel.avatar, class: "video-card__avatar" %>
+      <% if @channel.channel_avatar_url.present? %>
+        <%= image_tag @channel.channel_avatar_url, class: "video-card__avatar" %>
       <% else %>
         <div class="video-card__avatar"><%= @channel.channel_name.first.upcase %></div>
       <% end %>
@@ -34,7 +35,7 @@
   <div>
     <h2 class="watch-rail__heading">More from this channel</h2>
     <% if @related_videos.present? %>
-      <%= render partial: "videos/video_card_compact", collection: @related_videos, as: :video %>
+      <%= render partial: "videos/video_card_compact", collection: @related_videos, as: :video, locals: { channel: @channel } %>
     <% else %>
       <p class="watch-rail__empty">No other videos yet.</p>
     <% end %>

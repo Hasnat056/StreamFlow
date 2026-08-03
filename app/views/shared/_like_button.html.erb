@@ -1,3 +1,4 @@
+<% likes_count = video.respond_to?(:likes_count) ? video.likes_count : video.video_likes.size %>
 <div id="like_button_<%= video.id %>" class="like-button">
   <% if current_user %>
     <% if current_user.liked?(video) %>
@@ -10,5 +11,5 @@
       <% end %>
     <% end %>
   <% end %>
-  <span class="like-button__count"><%= pluralize(video.video_likes.size, "like") %></span>
+  <span class="like-button__count"><%= pluralize(likes_count, "like") %></span>
 </div>
