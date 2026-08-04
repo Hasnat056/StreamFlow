@@ -25,8 +25,12 @@ Rails.application.configure do
     config.action_controller.perform_caching = false
   end
 
-  # Change to :null_store to avoid any caching.
-  config.cache_store = :memory_store
+  # Redis-backed so cache-aside behavior matches production. Change to
+  # :null_store to disable caching entirely.
+  config.cache_store = :redis_cache_store, {
+    url: Rails.application.credentials.dig(:redis, :redis_url) || "redis://localhost:6379/1",
+    namespace: "cache"
+  }
 
   # Store uploaded files on Cloudflare R2 (see config/storage.yml for options).
 

@@ -4,7 +4,7 @@ class ChannelsController < ApplicationController
 
   def new
     @channel = current_user.channels.build
-    @categories = Channel::CATEGORIES
+    load_tag_picker_data
   end
 
   def show
@@ -24,7 +24,8 @@ class ChannelsController < ApplicationController
     else
       respond_to do |format|
         format.html do
-          @categories = Channel::CATEGORIES # Re-populate dropdown on validation error
+          # Re-populate dropdown/picker data on validation error
+          load_tag_picker_data
           render :new, status: :unprocessable_entity
         end
         format.json { render json: { status: "error", errors: @channel.errors.full_messages }, status: :unprocessable_entity }
@@ -33,7 +34,7 @@ class ChannelsController < ApplicationController
   end
 
   def edit
-    @categories = Channel::CATEGORIES
+    load_tag_picker_data
   end
 
   def update
@@ -45,7 +46,7 @@ class ChannelsController < ApplicationController
     else
       respond_to do |format|
         format.html do
-          @categories = Channel::CATEGORIES
+          load_tag_picker_data
           render :edit, status: :unprocessable_entity
         end
         format.json { render json: { status: "error", errors: @channel.errors.full_messages }, status: :unprocessable_entity }
@@ -62,11 +63,19 @@ class ChannelsController < ApplicationController
   def channel_params
     params.require(:channel).permit(
       :channel_name,
-      :category,
+      :category_id,
       :description,
-      :tags_input,
       :avatar,
-      :banner
+      :banner,
+      tag_ids: []
     )
+  end
+
+  # Category/tag data for the dropdown + picker — entirely served from
+  # Category.cached_tag_groups (no DB query on the common path).
+  def load_tag_picker_data
+    @tag_groups = Category.cached_tag_groups
+    @categories = @tag_groups.map(&:first).select(&:is_visible?)
+    @general_category_id = @tag_groups.find { |category, _| !category.is_visible? }&.first&.id
   end
 end

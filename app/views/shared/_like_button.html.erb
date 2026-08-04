@@ -1,7 +1,8 @@
-<% likes_count = video.respond_to?(:likes_count) ? video.likes_count : video.video_likes.size %>
+<% likes_count = local_assigns[:likes_count] || (video.respond_to?(:likes_count) ? video.likes_count : video.video_likes.size) %>
+<% liked = local_assigns.key?(:liked) ? local_assigns[:liked] : current_user && current_user.liked?(video) %>
 <div id="like_button_<%= video.id %>" class="like-button">
   <% if current_user %>
-    <% if current_user.liked?(video) %>
+    <% if liked %>
       <%= button_to channel_video_video_like_path(video.channel, video), method: :delete, class: "like-btn like-btn--active", aria: { label: "Unlike" } do %>
         <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 21s-6.7-4.35-9.33-8.2C.86 10.1 1.1 6.9 3.6 5.1c2.1-1.5 4.9-1.1 6.6.9L12 7.8l1.8-1.8c1.7-2 4.5-2.4 6.6-.9 2.5 1.8 2.74 5 .93 7.7C18.7 16.65 12 21 12 21z"/></svg>
       <% end %>

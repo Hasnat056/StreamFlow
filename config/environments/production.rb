@@ -46,8 +46,13 @@ Rails.application.configure do
   # Don't log any deprecations.
   config.active_support.report_deprecations = false
 
-  # Replace the default in-process memory cache store with a durable alternative.
-  config.cache_store = :solid_cache_store
+  # Cache-aside store (discovery/home/video-page data), shared Redis instance
+  # with Sidekiq for now — see CLAUDE.md target architecture for the planned
+  # split into separate instances.
+  config.cache_store = :redis_cache_store, {
+    url: Rails.application.credentials.dig(:redis, :redis_url),
+    namespace: "cache"
+  }
 
   # Replace the default in-process and non-durable queuing backend for Active Job.
   config.active_job.queue_adapter = :sidekiq

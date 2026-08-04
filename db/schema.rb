@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_03_142607) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_04_121000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "citext"
   enable_extension "pg_catalog.plpgsql"
@@ -48,17 +48,45 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_03_142607) do
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
   end
 
+  create_table "categories", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.boolean "is_visible", default: true, null: false
+    t.string "name", null: false
+    t.datetime "updated_at", null: false
+    t.index ["name"], name: "index_categories_on_name", unique: true
+  end
+
+  create_table "category_tags", force: :cascade do |t|
+    t.bigint "category_id", null: false
+    t.datetime "created_at", null: false
+    t.bigint "tag_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["category_id", "tag_id"], name: "index_category_tags_on_category_id_and_tag_id", unique: true
+    t.index ["category_id"], name: "index_category_tags_on_category_id"
+    t.index ["tag_id"], name: "index_category_tags_on_tag_id"
+  end
+
+  create_table "channel_tags", force: :cascade do |t|
+    t.bigint "channel_id", null: false
+    t.datetime "created_at", null: false
+    t.bigint "tag_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["channel_id", "tag_id"], name: "index_channel_tags_on_channel_id_and_tag_id", unique: true
+    t.index ["channel_id"], name: "index_channel_tags_on_channel_id"
+    t.index ["tag_id"], name: "index_channel_tags_on_tag_id"
+  end
+
   create_table "channels", force: :cascade do |t|
-    t.string "category", null: false
+    t.bigint "category_id", null: false
     t.text "channel_avatar_url"
     t.text "channel_banner_url"
     t.string "channel_name", null: false
     t.enum "channel_type", default: "viewer", null: false, enum_type: "channel_types"
     t.datetime "created_at", null: false
     t.text "description"
-    t.text "tags", default: [], null: false, array: true
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
+    t.index ["category_id"], name: "index_channels_on_category_id"
     t.index ["user_id", "channel_type"], name: "index_channels_on_user_id_and_channel_type", unique: true
     t.index ["user_id"], name: "index_channels_on_user_id"
   end
@@ -94,6 +122,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_03_142607) do
     t.index ["user_id"], name: "index_subscriptions_on_user_id"
   end
 
+  create_table "tags", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "name", null: false
+    t.datetime "updated_at", null: false
+    t.index ["name"], name: "index_tags_on_name", unique: true
+  end
+
   create_table "users", force: :cascade do |t|
     t.text "avatar_url"
     t.datetime "created_at", null: false
@@ -126,6 +161,16 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_03_142607) do
     t.index ["video_id"], name: "index_video_playlists_on_video_id"
   end
 
+  create_table "video_tags", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.bigint "tag_id", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "video_id", null: false
+    t.index ["tag_id"], name: "index_video_tags_on_tag_id"
+    t.index ["video_id", "tag_id"], name: "index_video_tags_on_video_id_and_tag_id", unique: true
+    t.index ["video_id"], name: "index_video_tags_on_video_id"
+  end
+
   create_table "video_views", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.inet "ip_address", null: false
@@ -143,7 +188,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_03_142607) do
     t.integer "duration_sec"
     t.text "processing_error"
     t.enum "status", default: "upload_pending", null: false, enum_type: "video_status"
-    t.text "tags", default: [], null: false, array: true
     t.text "thumbnail_url"
     t.string "title", null: false
     t.datetime "updated_at", null: false
@@ -172,6 +216,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_03_142607) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "category_tags", "categories", on_delete: :cascade
+  add_foreign_key "category_tags", "tags", on_delete: :cascade
+  add_foreign_key "channel_tags", "channels", on_delete: :cascade
+  add_foreign_key "channel_tags", "tags", on_delete: :cascade
+  add_foreign_key "channels", "categories"
   add_foreign_key "channels", "users", on_delete: :nullify
   add_foreign_key "comment_likes", "comments", on_delete: :cascade
   add_foreign_key "comment_likes", "users", on_delete: :cascade
@@ -182,6 +231,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_03_142607) do
   add_foreign_key "video_likes", "users", on_delete: :cascade
   add_foreign_key "video_likes", "videos", on_delete: :cascade
   add_foreign_key "video_playlists", "videos", on_delete: :cascade
+  add_foreign_key "video_tags", "tags", on_delete: :cascade
+  add_foreign_key "video_tags", "videos", on_delete: :cascade
   add_foreign_key "video_views", "users", on_delete: :cascade
   add_foreign_key "video_views", "videos", on_delete: :cascade
   add_foreign_key "videos", "channels", on_delete: :cascade

@@ -1,14 +1,6 @@
 <div id="comments_list" class="comments">
-  <% liked_by_me_sql = current_user ? Comment.sanitize_sql_array([
-       "EXISTS (SELECT 1 FROM comment_likes cl WHERE cl.comment_id = comments.id AND cl.user_id = ?)", current_user.id
-     ]) : "false" %>
-  <% comments = video.comments
-       .left_joins(:comment_likes)
-       .select("comments.*, COUNT(comment_likes.id) AS likes_count, #{liked_by_me_sql} AS liked_by_me")
-       .group("comments.id")
-       .order(created_at: :desc)
-       .includes(:user)
-       .to_a %>
+  <% comments = Comment.cached_for_video(video.id) %>
+  <% liked_comment_ids = current_user ? CommentLike.where(user_id: current_user.id, comment_id: comments.map(&:id)).pluck(:comment_id).to_set : Set.new %>
   <h2 class="comments__heading"><%= pluralize(comments.size, "Comment") %></h2>
 
   <% if current_user && comments.none? { |comment| comment.user_id == current_user.id } %>
@@ -18,6 +10,6 @@
   <% comments.each do |comment| %>
     <%= render "comments/comment", video: video, comment: comment,
           likes_count: comment.likes_count,
-          liked_by_current_user: comment.liked_by_me %>
+          liked_by_current_user: liked_comment_ids.include?(comment.id) %>
   <% end %>
 </div>

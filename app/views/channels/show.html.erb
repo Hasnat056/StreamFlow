@@ -15,7 +15,7 @@
 
   <div class="channel-header__body">
     <h1 class="channel-header__name"><%= @channel.channel_name %></h1>
-    <span class="badge"><%= @channel.category %></span>
+    <span class="badge"><%= @channel.category.name %></span>
     <span class="badge"><%= pluralize(@channel.subscribers.count, "subscriber") %></span>
 
     <% if @channel.description.present? %>
@@ -25,7 +25,7 @@
     <% if @channel.tags.present? %>
       <div>
         <% @channel.tags.each do |tag| %>
-          <span class="tag-pill">#<%= tag %></span>
+          <span class="tag-pill">#<%= tag.name %></span>
         <% end %>
       </div>
     <% end %>
@@ -45,6 +45,10 @@
 <% if current_user == @channel.user %>
   <section>
     <h2 class="section-title">In process</h2>
+    <div class="in-process-row hidden" data-controller="upload-placeholder" data-upload-placeholder-channel-id-value="<%= @channel.id %>">
+      <span class="in-process-row__title" data-upload-placeholder-target="title"></span>
+      <span class="status-chip status-chip--uploading" data-upload-placeholder-target="chip">Uploading</span>
+    </div>
     <%= render "channels/in_process_videos", channel: @channel %>
   </section>
 <% end %>

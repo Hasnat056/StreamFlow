@@ -1,22 +1,16 @@
 # frozen_string_literal: true
 
 class Channel < ApplicationRecord
-  CATEGORIES = [
-    "Gaming",
-    "Technology & Science",
-    "Education",
-    "Entertainment",
-    "Music",
-    "News & Politics",
-    "Sports",
-    "Vlogs & Lifestyle",
-    "Howto & Style"
-  ].freeze
+  MAX_TAGS = 5
+
   # Relationships
   belongs_to :user
+  belongs_to :category
   has_many :videos, dependent: :destroy
   has_many :subscriptions, dependent: :destroy
   has_many :subscribers, through: :subscriptions, source: :user
+  has_many :channel_tags, dependent: :destroy
+  has_many :tags, through: :channel_tags
 
   has_one_attached :avatar
   has_one_attached :banner
@@ -29,28 +23,35 @@ class Channel < ApplicationRecord
 
   # Validations
   validates :channel_name, presence: true
-  validates :category, presence: true
   validates :user_id, presence: true
 
   # Ensure user can only have one channel per channel_type (per index constraint)
   validates :channel_type, presence: true,
             uniqueness: { scope: :user_id, message: "already has a channel of this type" }
 
-  # Normalizes comma-separated string inputs for tags into a PostgreSQL array
-  def tags_input=(value)
-    if value.is_a?(String)
-      self.tags = value.split(",").map(&:strip).reject(&:blank?)
-    elsif value.is_a?(Array)
-      self.tags = value
-    end
-  end
+  validate :tags_within_limit
+  validate :tags_within_pool
 
-  # Helper to display tags back as a comma-separated string in forms
-  def tags_input
-    tags&.join(", ")
+  # Tags selectable for this channel: its own category's tags, plus tags
+  # under the always-included, non-selectable General category.
+  def tag_pool
+    general = Category.general
+    category_ids = [ category_id, general&.id ].compact
+    Tag.joins(:categories).where(categories: { id: category_ids }).distinct
   end
 
   private
+
+  def tags_within_limit
+    errors.add(:tags, "can have at most #{MAX_TAGS}") if tags.size > MAX_TAGS
+  end
+
+  def tags_within_pool
+    return if category_id.blank?
+
+    invalid_ids = tag_ids - tag_pool.pluck(:id)
+    errors.add(:tags, "must belong to the selected category or General") if invalid_ids.any?
+  end
 
   def sync_avatar_url
     self.channel_avatar_url = avatar.attached? ? r2_public_url(avatar.blob.key) : nil

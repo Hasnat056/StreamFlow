@@ -9,7 +9,10 @@ let state = {
   progress: 0,
   resultUrl: null,
   successMessage: "Uploaded successfully",
-  errorMessage: null
+  errorMessage: null,
+  kind: null, // "video" | "channel" | null
+  channelId: null, // video uploads only - lets the owner's channel page show a live placeholder
+  title: null // video uploads only - display text for that placeholder
 }
 
 const subscribers = new Set()
@@ -34,7 +37,7 @@ export function isUploading() {
 }
 
 export function dismiss() {
-  setState({ status: "idle", label: "", progress: 0, resultUrl: null, errorMessage: null })
+  setState({ status: "idle", label: "", progress: 0, resultUrl: null, errorMessage: null, kind: null, channelId: null, title: null })
 }
 
 function csrfToken() {
@@ -64,7 +67,7 @@ function finish(response, data) {
   }
 }
 
-export function startVideoUpload({ file, title, directUploadUrl, createUrl }) {
+export function startVideoUpload({ file, title, tagIds, channelId, directUploadUrl, createUrl }) {
   if (state.status === "uploading") return false
 
   setState({
@@ -73,7 +76,10 @@ export function startVideoUpload({ file, title, directUploadUrl, createUrl }) {
     progress: 0,
     resultUrl: null,
     successMessage: "Uploaded successfully",
-    errorMessage: null
+    errorMessage: null,
+    kind: "video",
+    channelId,
+    title
   })
 
   directUpload(file, directUploadUrl, (loaded, total) => {
@@ -84,7 +90,7 @@ export function startVideoUpload({ file, title, directUploadUrl, createUrl }) {
         method: "POST",
         headers: { "Content-Type": "application/json", "Accept": "application/json", "X-CSRF-Token": csrfToken() },
         credentials: "same-origin",
-        body: JSON.stringify({ video: { title, source_file: blob.signed_id } })
+        body: JSON.stringify({ video: { title, source_file: blob.signed_id, tag_ids: tagIds } })
       })
     )
     .then(async (response) => finish(response, await response.json()))
@@ -104,7 +110,10 @@ export function startChannelSave({ label, successMessage, method, submitUrl, fie
     progress: 0,
     resultUrl: null,
     successMessage,
-    errorMessage: null
+    errorMessage: null,
+    kind: "channel",
+    channelId: null,
+    title: null
   })
 
   const totalBytes = [ avatarFile, bannerFile ].filter(Boolean).reduce((sum, file) => sum + file.size, 0)

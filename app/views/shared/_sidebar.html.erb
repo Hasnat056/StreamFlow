@@ -22,7 +22,7 @@
         <span class="sidebar__nav-label">History</span>
       <% end %>
 
-      <% channel = current_user.channels.first %>
+      <% channel = current_user.channels.detect(&:persisted?) %>
       <% if channel %>
         <%= link_to channel_path(channel), class: "sidebar__nav-item #{'is-active' if current_page?(channel_path(channel))}" do %>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="8" r="3.2"/><path d="M5 20c1-4 4-6 7-6s6 2 7 6"/></svg>

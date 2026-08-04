@@ -1,4 +1,4 @@
-<% views = video.respond_to?(:views_count) ? video.views_count : video.video_views.size %>
+<% views = local_assigns[:views_by_video]&.[](video.id) || (video.respond_to?(:views_count) ? video.views_count : video.video_views.size) %>
 <% channel = local_assigns[:channel] || video.channel %>
 <%= link_to channel_video_path(channel, video), class: "watch-rail__item" do %>
   <div class="watch-rail__thumb">

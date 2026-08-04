@@ -5,11 +5,24 @@ import * as uploadManager from "../lib/upload_manager"
 // Hands the file off to upload_manager and leaves the page immediately -
 // the upload keeps running in the background regardless of where the user goes.
 export default class extends Controller {
-  static targets = ["title", "file", "warning"]
+  static targets = ["title", "file", "warning", "tagCheckbox", "tagsWarning"]
   static values = {
     directUploadUrl: String,
     createUrl: String,
-    redirectUrl: String
+    redirectUrl: String,
+    maxTags: Number,
+    channelId: Number
+  }
+
+  toggleTag(event) {
+    if (this.checkedTagIds().length > this.maxTagsValue) {
+      event.target.checked = false
+      this.showTagsWarning(`You can select up to ${this.maxTagsValue} tags.`)
+    }
+  }
+
+  checkedTagIds() {
+    return this.tagCheckboxTargets.filter((checkbox) => checkbox.checked).map((checkbox) => checkbox.value)
   }
 
   submit(event) {
@@ -31,6 +44,8 @@ export default class extends Controller {
     uploadManager.startVideoUpload({
       file,
       title,
+      tagIds: this.checkedTagIds(),
+      channelId: this.channelIdValue,
       directUploadUrl: this.directUploadUrlValue,
       createUrl: this.createUrlValue
     })
@@ -41,5 +56,10 @@ export default class extends Controller {
   showWarning(message) {
     this.warningTarget.textContent = message
     this.warningTarget.classList.remove("hidden")
+  }
+
+  showTagsWarning(message) {
+    this.tagsWarningTarget.textContent = message
+    this.tagsWarningTarget.classList.remove("hidden")
   }
 }

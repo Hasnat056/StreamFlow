@@ -25,6 +25,9 @@ application.register("theme", ThemeController)
 import ToastController from "./toast_controller"
 application.register("toast", ToastController)
 
+import UploadPlaceholderController from "./upload_placeholder_controller"
+application.register("upload-placeholder", UploadPlaceholderController)
+
 import UploadWidgetController from "./upload_widget_controller"
 application.register("upload-widget", UploadWidgetController)
 

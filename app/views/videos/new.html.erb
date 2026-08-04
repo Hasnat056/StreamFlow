@@ -18,7 +18,9 @@
           action: "submit->video-upload-form#submit",
           video_upload_form_direct_upload_url_value: rails_direct_uploads_path,
           video_upload_form_create_url_value: channel_videos_path(@channel, format: :json),
-          video_upload_form_redirect_url_value: root_path
+          video_upload_form_redirect_url_value: root_path,
+          video_upload_form_max_tags_value: Video::MAX_TAGS,
+          video_upload_form_channel_id_value: @channel.id
         } do |f| %>
     <div class="field">
       <%= f.label :title, class: "field__label" %>
@@ -28,6 +30,27 @@
     <div class="field">
       <%= f.label :source_file, "Select video", class: "field__label" %>
       <%= f.file_field :source_file, accept: "video/*", required: true, class: "field__file", data: { video_upload_form_target: "file" } %>
+    </div>
+
+    <div class="field">
+      <%= f.label :tag_ids, "Tags", class: "field__label" %>
+      <p class="field__hint">Pre-filled from your channel's tags — pick up to <%= Video::MAX_TAGS %>.</p>
+      <div class="tag-picker">
+        <% @tag_groups.each do |category, tags| %>
+          <% next if tags.empty? %>
+          <div class="tag-picker__group">
+            <p class="tag-picker__group-title"><%= category.is_visible? ? category.name : "General" %></p>
+            <% tags.each do |tag| %>
+              <label class="tag-option">
+                <%= check_box_tag "video[tag_ids][]", tag.id, @channel.tag_ids.include?(tag.id), id: nil,
+                      data: { video_upload_form_target: "tagCheckbox", action: "change->video-upload-form#toggleTag" } %>
+                <%= tag.name %>
+              </label>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+      <p class="hidden field__warning" data-video-upload-form-target="tagsWarning"></p>
     </div>
 
     <p class="hidden field__warning" data-video-upload-form-target="warning"></p>
