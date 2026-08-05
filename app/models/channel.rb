@@ -4,6 +4,7 @@ class Channel < ApplicationRecord
   MAX_TAGS = 5
   HANDLE_FORMAT = /\A[a-z0-9_]+\z/
   RESERVED_HANDLES = %w[new].freeze
+  COUNTS_TTL = 120 # seconds — same staleness tolerance as Video's view/like counts
 
   # Relationships
   belongs_to :user
@@ -49,6 +50,7 @@ class Channel < ApplicationRecord
   # The stored/DB-facing values are still the plain strings "public"/"private".
   enum :visibility, { visible: "public", hidden: "private" }
 
+  after_commit :bust_attrs_cache
   after_commit :sync_videos_on_visibility_change
 
   # Used everywhere a channel_path/channel_video_path etc. is generated, so
@@ -56,6 +58,25 @@ class Channel < ApplicationRecord
   # any of the call sites.
   def to_param
     handle
+  end
+
+  # Static-ish channel row + category + tags, keyed by handle (immutable, so
+  # no rename-invalidation to worry about) — same "no TTL, busted on save"
+  # reasoning as Video.cached_attrs. skip_nil so a lookup on a bad/removed
+  # handle doesn't poison the cache with a permanent miss.
+  def self.cached_attrs(handle)
+    Rails.cache.fetch("channel:#{handle}:attrs", skip_nil: true) do
+      includes(:category, :tags).find_by(handle: handle)
+    end
+  end
+
+  # Subscriber count — the volatile part, deliberately split from attrs (same
+  # split as Video's counts vs attrs). TTL-only staleness, no explicit bust on
+  # subscribe/unsubscribe, matching how view/like counts already behave.
+  def self.cached_subscriber_count(id)
+    Rails.cache.fetch("channel:#{id}:subscriber_count", expires_in: COUNTS_TTL) do
+      Subscription.where(channel_id: id).count
+    end
   end
 
   # Tags selectable for this channel: its own category's tags, plus tags
@@ -92,6 +113,10 @@ class Channel < ApplicationRecord
     raise "Missing r2.public_base_url credential - cannot build a channel image URL" if base_url.blank?
 
     "#{base_url}/#{key}"
+  end
+
+  def bust_attrs_cache
+    Rails.cache.delete("channel:#{handle}:attrs")
   end
 
   # A channel going public/private doesn't just affect its own page — every

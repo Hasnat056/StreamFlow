@@ -8,16 +8,30 @@ class ChannelsController < ApplicationController
   end
 
   def show
-    @channel = Channel.find_by!(handle: params[:id])
+    @channel = Channel.cached_attrs(params[:id])
+    raise ActiveRecord::RecordNotFound unless @channel
+
     @owner_viewing = current_user&.id == @channel.user_id
+    @subscriber_count = Channel.cached_subscriber_count(@channel.id)
 
     return if @channel.hidden? && !@owner_viewing
 
-    # The owner sees all of their own ready videos, including private ones;
-    # anyone else only sees what's actually discoverable (ready + public).
-    @videos = (@owner_viewing ? @channel.videos.ready.includes(:active_playlist) : @channel.videos.discoverable).order(created_at: :desc)
-    @views_by_video = VideoView.where(video_id: @videos.map(&:id)).group(:video_id).count
-    @likes_by_video = VideoLike.where(video_id: @videos.map(&:id)).group(:video_id).count if @owner_viewing
+    if @owner_viewing
+      # The owner needs the freshest state to manage videos (edit/delete/toggle
+      # visibility), so this branch stays live rather than going through the
+      # per-video attrs/counts cache.
+      @videos = @channel.videos.ready.includes(:active_playlist).order(created_at: :desc)
+      @views_by_video = VideoView.where(video_id: @videos.map(&:id)).group(:video_id).count
+      @likes_by_video = VideoLike.where(video_id: @videos.map(&:id)).group(:video_id).count
+    else
+      # Ids are a cheap indexed query (channel_id + status + visibility);
+      # hydrate_cards then serves title/thumbnail/tags/views from the same
+      # per-video caches PagesController#home already relies on.
+      ids = @channel.videos.discoverable.order(created_at: :desc).pluck(:id)
+      hydrated = Video.hydrate_cards(ids)
+      @videos = hydrated[:videos]
+      @views_by_video = hydrated[:views_by_video]
+    end
   end
 
   def create
