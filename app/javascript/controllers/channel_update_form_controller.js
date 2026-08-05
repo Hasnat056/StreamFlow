@@ -43,6 +43,7 @@ export default class extends Controller {
     this.visibilityInputTarget.value = makingPublic ? "public" : "private"
     this.visibilityToggleTarget.classList.toggle("toggle-switch--on", makingPublic)
     this.visibilityToggleTarget.setAttribute("aria-pressed", makingPublic)
+    this.visibilityToggleTarget.title = makingPublic ? "Make private" : "Make public"
     this.visibilityHintTarget.textContent = makingPublic
       ? "Public — anyone can find and watch this channel."
       : "Private — only you can see this channel."

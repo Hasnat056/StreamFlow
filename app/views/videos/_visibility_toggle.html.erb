@@ -1,0 +1,8 @@
+<% channel = local_assigns[:channel] || video.channel %>
+<% action_label = video.visible? ? "Make private" : "Make public" %>
+<%= button_to toggle_visibility_channel_video_path(channel, video), method: :patch,
+      id: "video_visibility_#{video.id}",
+      class: "toggle-switch #{"toggle-switch--on" if video.visible?}",
+      title: action_label, aria: { label: action_label } do %>
+  <span class="toggle-switch__knob"></span>
+<% end %>

@@ -23,6 +23,10 @@ Rails.application.routes.draw do
 
   resources :channels, only: [ :new, :create, :show, :edit, :update ] do
     resources :videos, only: [ :new, :create, :show, :edit, :update, :destroy ] do
+      member do
+        patch :toggle_visibility
+      end
+
       resource :video_view, only: [ :create ]
       resource :video_like, only: [ :create, :destroy ]
       resource :watch_progress, only: [ :create ]

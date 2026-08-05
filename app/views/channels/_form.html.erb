@@ -98,7 +98,8 @@
 
       <button type="button" class="toggle-switch <%= "toggle-switch--on" if @channel.visible? %>"
             data-channel-update-form-target="visibilityToggle" data-action="click->channel-update-form#toggleVisibility"
-            aria-pressed="<%= @channel.visible? %>" aria-label="Toggle channel visibility">
+            aria-pressed="<%= @channel.visible? %>" aria-label="Toggle channel visibility"
+            title="<%= @channel.visible? ? "Make private" : "Make public" %>">
         <span class="toggle-switch__knob"></span>
       </button>
       <%= f.hidden_field :visibility, value: @channel.visibility, data: { channel_update_form_target: "visibilityInput" } %>

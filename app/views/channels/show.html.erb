@@ -61,11 +61,19 @@
 
   <% if @channel.hidden? && !@owner_viewing %>
     <p class="empty-state">This channel is private.</p>
-  <% elsif @videos.present? %>
+  <% elsif @videos.blank? %>
+    <p class="empty-state">No videos yet.</p>
+  <% elsif @owner_viewing %>
+    <div class="mlist">
+      <div class="mlist__col-heads">
+        <span>Video</span><span></span><span>Stats</span><span style="text-align:right">Actions</span>
+      </div>
+      <%= render partial: "videos/manage_row", collection: @videos, as: :video,
+            locals: { channel: @channel, views_by_video: @views_by_video, likes_by_video: @likes_by_video } %>
+    </div>
+  <% else %>
     <div class="video-grid">
       <%= render partial: "videos/video_card", collection: @videos, as: :video, locals: { views_by_video: @views_by_video } %>
     </div>
-  <% else %>
-    <p class="empty-state">No videos yet.</p>
   <% end %>
 </section>

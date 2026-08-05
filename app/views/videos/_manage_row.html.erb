@@ -1,0 +1,48 @@
+<% channel = local_assigns[:channel] || video.channel %>
+<% views = local_assigns[:views_by_video]&.[](video.id) || video.video_views.size %>
+<% likes = local_assigns[:likes_by_video]&.[](video.id) || video.video_likes.size %>
+<div class="mrow">
+  <div class="mrow__thumb">
+    <% if video.thumbnail_url.present? %>
+      <%= image_tag video.thumbnail_url, alt: video.title, loading: "lazy" %>
+    <% else %>
+      <div class="ph"><svg viewBox="0 0 24 24"><path d="M6 4l14 8-14 8z"/></svg></div>
+    <% end %>
+    <% if video.duration_sec.present? %>
+      <span class="mrow__dur"><%= format_duration(video.duration_sec) %></span>
+    <% end %>
+  </div>
+
+  <div class="mrow__main">
+    <p class="mrow__title"><%= video.title %></p>
+    <div class="mrow__meta">
+      <span class="status-chip <%= status_chip_class(video.status) %>"><%= video.status.humanize %></span>
+      <span class="mrow__uploaded">Uploaded <%= video.created_at.strftime("%b %-d") %></span>
+    </div>
+    <% if video.active_playlist %>
+      <p class="mrow__pipeline">Serving <strong>v<%= video.active_playlist.version %></strong></p>
+    <% end %>
+  </div>
+
+  <div class="mrow__stats">
+    <div class="mrow__stats-row">
+      <span class="mrow__stat" aria-label="<%= pluralize(views, "view") %>">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M1.5 12S5 5 12 5s10.5 7 10.5 7-3.5 7-10.5 7S1.5 12 1.5 12z"/><circle cx="12" cy="12" r="3"/></svg>
+        <b><%= views %></b>
+      </span>
+      <span class="mrow__stat" aria-label="<%= pluralize(likes, "like") %>">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 21s-6.7-4.35-9.33-8.2C.86 10.1 1.1 6.9 3.6 5.1c2.1-1.5 4.9-1.1 6.6.9L12 7.8l1.8-1.8c1.7-2 4.5-2.4 6.6-.9 2.5 1.8 2.74 5 .93 7.7C18.7 16.65 12 21 12 21z"/></svg>
+        <b><%= likes %></b>
+      </span>
+    </div>
+    <span><%= format_watch_time(video.watch_time) %> watched</span>
+  </div>
+
+  <div class="mrow__actions">
+    <%= render "videos/visibility_toggle", video: video, channel: channel %>
+    <%= link_to "Edit", edit_channel_video_path(channel, video), class: "btn btn--ghost" %>
+    <%= button_to "Delete", channel_video_path(channel, video),
+          method: :delete, class: "btn btn--danger",
+          form: { data: { turbo_confirm: "Delete this video? This cannot be undone." } } %>
+  </div>
+</div>

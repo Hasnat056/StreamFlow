@@ -15,8 +15,9 @@ class ChannelsController < ApplicationController
 
     # The owner sees all of their own ready videos, including private ones;
     # anyone else only sees what's actually discoverable (ready + public).
-    @videos = (@owner_viewing ? @channel.videos.ready : @channel.videos.discoverable).order(created_at: :desc)
+    @videos = (@owner_viewing ? @channel.videos.ready.includes(:active_playlist) : @channel.videos.discoverable).order(created_at: :desc)
     @views_by_video = VideoView.where(video_id: @videos.map(&:id)).group(:video_id).count
+    @likes_by_video = VideoLike.where(video_id: @videos.map(&:id)).group(:video_id).count if @owner_viewing
   end
 
   def create

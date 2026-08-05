@@ -1,7 +1,7 @@
 # app/controllers/videos_controller.rb
 class VideosController < ApplicationController
-  before_action :authenticate_user!, only: [ :new, :create, :edit, :update, :destroy ]
-  before_action :set_video, only: [ :edit, :update, :destroy ]
+  before_action :authenticate_user!, only: [ :new, :create, :edit, :update, :destroy, :toggle_visibility ]
+  before_action :set_video, only: [ :edit, :update, :destroy, :toggle_visibility ]
 
   def new
     @channel = Channel.find(params[:channel_id])
@@ -80,6 +80,19 @@ class VideosController < ApplicationController
     authorize @video
     @video.destroy
     redirect_to channel_path(@channel), notice: "Video deleted."
+  end
+
+  def toggle_visibility
+    authorize @video, :update?
+    @video.update!(visibility: @video.visible? ? "private" : "public")
+
+    respond_to do |format|
+      format.html { redirect_to channel_path(@channel) }
+      format.turbo_stream do
+        render turbo_stream: turbo_stream.replace("video_visibility_#{@video.id}",
+          partial: "videos/visibility_toggle", locals: { video: @video })
+      end
+    end
   end
 
   private
