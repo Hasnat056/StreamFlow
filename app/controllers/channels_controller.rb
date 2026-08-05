@@ -1,6 +1,6 @@
 class ChannelsController < ApplicationController
   before_action :authenticate_user!, except: [ :show ]
-  before_action :set_owned_channel, only: [ :edit, :update ]
+  before_action :set_channel, only: [ :edit, :update ]
 
   def new
     @channel = current_user.channels.build
@@ -34,10 +34,13 @@ class ChannelsController < ApplicationController
   end
 
   def edit
+    authorize @channel
     load_tag_picker_data
   end
 
   def update
+    authorize @channel
+
     if @channel.update(channel_params)
       respond_to do |format|
         format.html { redirect_to channel_path(@channel), notice: "Channel updated successfully!" }
@@ -56,8 +59,8 @@ class ChannelsController < ApplicationController
 
   private
 
-  def set_owned_channel
-    @channel = current_user.channels.find(params[:id])
+  def set_channel
+    @channel = Channel.find(params[:id])
   end
 
   def channel_params

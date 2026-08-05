@@ -28,7 +28,7 @@ class CommentsController < ApplicationController
 
   def destroy
     comment = @video.comments.find(params[:id])
-    if comment.user_id == current_user.id
+    if CommentPolicy.new(current_user, comment).destroy?
       comment.destroy
       respond_with_result(:notice, "Comment deleted")
     else
@@ -38,7 +38,7 @@ class CommentsController < ApplicationController
 
   def edit
     @comment = @video.comments.find(params[:id])
-    if @comment.user_id == current_user.id
+    if CommentPolicy.new(current_user, @comment).update?
       respond_to do |format|
         format.html { redirect_to channel_video_path(@video.channel, @video) }
         format.turbo_stream do

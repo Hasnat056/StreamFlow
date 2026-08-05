@@ -32,7 +32,7 @@
   </div>
 
     <div class="channel-header__actions">
-      <% if current_user == @channel.user %>
+      <% if policy(@channel).manage? %>
         <%= link_to "📹 Upload video", new_channel_video_path(@channel), class: "btn btn--primary" %>
         <%= link_to "Edit channel", edit_channel_path(@channel), class: "btn btn--ghost" %>
         <%= link_to "Analytics", channel_analytics_path(@channel), class: "btn btn--ghost" %>
@@ -42,7 +42,7 @@
     </div>
 </div>
 
-<% if current_user == @channel.user %>
+<% if policy(@channel).manage? %>
   <section>
     <h2 class="section-title">In process</h2>
     <div class="in-process-row hidden" data-controller="upload-placeholder" data-upload-placeholder-channel-id-value="<%= @channel.id %>">

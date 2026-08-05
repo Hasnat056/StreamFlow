@@ -1,6 +1,7 @@
 # app/controllers/videos_controller.rb
 class VideosController < ApplicationController
-  before_action :authenticate_user!, only: [ :new, :create ]
+  before_action :authenticate_user!, only: [ :new, :create, :edit, :update, :destroy ]
+  before_action :set_video, only: [ :edit, :update, :destroy ]
 
   def new
     @channel = Channel.find(params[:channel_id])
@@ -57,9 +58,40 @@ class VideosController < ApplicationController
     @related_views_by_video = related[:views_by_video]
   end
 
+  def edit
+    authorize @video
+    @tag_groups = Category.cached_tag_groups
+  end
+
+  def update
+    authorize @video
+
+    if @video.update(video_update_params)
+      redirect_to channel_path(@channel), notice: "Video updated successfully!"
+    else
+      @tag_groups = Category.cached_tag_groups
+      render :edit, status: :unprocessable_entity
+    end
+  end
+
+  def destroy
+    authorize @video
+    @video.destroy
+    redirect_to channel_path(@channel), notice: "Video deleted."
+  end
+
   private
+
+  def set_video
+    @channel = Channel.find(params[:channel_id])
+    @video = @channel.videos.find(params[:id])
+  end
 
   def video_params
     params.require(:video).permit(:title, :source_file, tag_ids: [])
+  end
+
+  def video_update_params
+    params.require(:video).permit(:title, tag_ids: [])
   end
 end

@@ -5,6 +5,8 @@ class ChannelAnalyticsController < ApplicationController
   DAYS = 90
 
   def show
+    authorize @channel, :analytics?
+
     video_ids = @channel.videos.ready.pluck(:id)
 
     @daily_views = daily_series(VideoView.where(video_id: video_ids))
@@ -24,7 +26,7 @@ class ChannelAnalyticsController < ApplicationController
   private
 
   def set_owned_channel
-    @channel = current_user.channels.find(params[:channel_id])
+    @channel = Channel.find(params[:channel_id])
   end
 
   def daily_series(scope)

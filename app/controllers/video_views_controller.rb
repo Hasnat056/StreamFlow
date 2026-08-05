@@ -10,7 +10,6 @@ class VideoViewsController < ApplicationController
       ip_address: request.remote_ip,
     )
     head :no_content
-
   end
 
   private

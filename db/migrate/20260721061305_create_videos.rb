@@ -2,7 +2,7 @@ class CreateVideos < ActiveRecord::Migration[8.1]
   def change
     create_enum :video_status, %w[upload_pending uploaded processing ready]
     create_table :videos do |t|
-      t.references :channel, null: false, foreign_key: {on_delete: :cascade}
+      t.references :channel, null: false, foreign_key: { on_delete: :cascade }
       t.string :title, null: false
       t.text :description
       t.text :tags, array: true, default: [], null: false

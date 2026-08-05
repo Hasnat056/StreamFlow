@@ -32,7 +32,7 @@
         </span>
       <% end %>
 
-      <% if current_user == comment.user %>
+      <% if policy(comment).update? %>
         <%= link_to "Edit", edit_channel_video_comment_path(video.channel, video, comment), class: "comment__action-link", data: { turbo_stream: true } %>
         <%= button_to "Delete", channel_video_comment_path(video.channel, video, comment), method: :delete, class: "comment__action-link comment__action-link--danger", form: { data: { turbo_confirm: "Delete this comment?" } } %>
       <% end %>

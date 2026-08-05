@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 class SubscriptionsController < ApplicationController
   before_action :authenticate_user!
   before_action :set_channel
@@ -35,7 +36,4 @@ class SubscriptionsController < ApplicationController
   def set_channel
     @channel = Channel.find(params[:channel_id])
   end
-
-
-
 end

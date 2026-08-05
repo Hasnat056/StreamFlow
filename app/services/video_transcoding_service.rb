@@ -1,5 +1,6 @@
 
 # frozen_string_literal: true
+
 class VideoTranscodingService
   RENDITION_LADDER = [
     { height: 1080, video_bitrate: "5000k", audio_bitrate: "192k" },
@@ -70,13 +71,11 @@ class VideoTranscodingService
       width: width,
       height: rendition[:height]
     }
-
   end
   def handle_failure(error)
     Rails.logger.error("VideoTranscodingService failed for video #{@video.id}: #{error.message}")
     @video.update!(processing_error: error.message) if @video.persisted?
     @video.mark_as_failed! if @video.may_mark_as_failed?
-
   end
 
   def write_master_playlist(tmp_dir, variant_infos)

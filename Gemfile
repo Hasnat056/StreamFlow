@@ -73,6 +73,9 @@ gem "omniauth"
 gem "omniauth-google-oauth2"
 gem "omniauth-rails_csrf_protection"
 
+# Policy-based authorization (who can edit/delete a given record)
+gem "pundit"
+
 # Video State Machine
 gem "aasm"
 

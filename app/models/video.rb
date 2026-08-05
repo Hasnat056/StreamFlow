@@ -8,7 +8,7 @@ class Video < ApplicationRecord
 
   belongs_to :channel
   has_many :video_playlists, dependent: :destroy
-  has_one :active_playlist, -> {where(is_active: true)}, class_name: "VideoPlaylist"
+  has_one :active_playlist, -> { where(is_active: true) }, class_name: "VideoPlaylist"
   has_many :video_views, dependent: :destroy
   has_many :video_likes, dependent: :destroy
   has_many :watch_progresses, dependent: :destroy
@@ -62,6 +62,8 @@ class Video < ApplicationRecord
   end
 
   after_commit :bust_attrs_cache
+  after_destroy_commit :purge_remote_storage
+  after_destroy_commit :remove_from_home_feed_cache
 
   def next_hls_version
     (video_playlists.maximum(:version) || 0) + 1
@@ -181,6 +183,18 @@ class Video < ApplicationRecord
   def add_to_home_feed_cache
     REDIS.zadd(HOME_FEED_KEY, created_at.to_i, id)
     REDIS.zremrangebyrank(HOME_FEED_KEY, 0, -(HOME_FEED_BOUND + 1))
+  end
+
+  def remove_from_home_feed_cache
+    REDIS.zrem(HOME_FEED_KEY, id)
+  end
+
+  # source_file (ActiveStorage) purges itself automatically on destroy; the
+  # HLS renditions and thumbnail are uploaded directly to R2 via S3_BUCKET in
+  # VideoTranscodingService, outside ActiveStorage, so nothing else deletes
+  # them without this.
+  def purge_remote_storage
+    S3_BUCKET.objects(prefix: "videos/#{id}/").batch_delete!
   end
 
   # Keeps the owner-only "in-process videos" panel on the channel page live —

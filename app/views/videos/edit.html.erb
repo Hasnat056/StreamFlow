@@ -1,0 +1,42 @@
+<div class="form-card">
+  <h1 class="form-card__title">Edit video</h1>
+
+  <% if @video.errors.any? %>
+    <div class="form-errors">
+      <p><b><%= pluralize(@video.errors.count, "error") %></b> prohibited this video from being saved:</p>
+      <ul>
+        <% @video.errors.full_messages.each do |msg| %>
+          <li><%= msg %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <%= form_with model: [@channel, @video], local: true do |f| %>
+    <div class="field">
+      <%= f.label :title, class: "field__label" %>
+      <%= f.text_field :title, required: true, class: "field__input" %>
+    </div>
+
+    <div class="field">
+      <%= f.label :tag_ids, "Tags", class: "field__label" %>
+      <p class="field__hint">Pick up to <%= Video::MAX_TAGS %>.</p>
+      <div class="tag-picker">
+        <% @tag_groups.each do |category, tags| %>
+          <% next if tags.empty? %>
+          <div class="tag-picker__group">
+            <p class="tag-picker__group-title"><%= category.is_visible? ? category.name : "General" %></p>
+            <% tags.each do |tag| %>
+              <label class="tag-option">
+                <%= check_box_tag "video[tag_ids][]", tag.id, @video.tag_ids.include?(tag.id), id: nil %>
+                <%= tag.name %>
+              </label>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+
+    <%= f.submit "Save changes", class: "btn btn--primary btn--block" %>
+  <% end %>
+</div>
