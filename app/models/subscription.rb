@@ -3,15 +3,13 @@ class Subscription < ApplicationRecord
   belongs_to :channel
 
   validates :user_id, uniqueness: { scope: :channel_id, message: "is already subscribed to this channel" }
-  validate :channel_must_be_a_creator_channel
+  validate :channel_must_be_public
   validate :cannot_subscribe_to_own_channel
 
-
-
   private
-  def channel_must_be_a_creator_channel
+  def channel_must_be_public
     return if channel.nil?
-    errors.add(:channel, "must be a creator channel") unless channel.channel_type == "creator"
+    errors.add(:channel, "must be public") unless channel.visible?
   end
 
   def cannot_subscribe_to_own_channel

@@ -6,7 +6,7 @@ import * as uploadManager from "../lib/upload_manager"
 // leaves the page immediately - the create/update keeps running in the
 // background regardless of where the user goes.
 export default class extends Controller {
-  static targets = [ "channelName", "category", "description", "avatar", "banner", "warning", "tagCheckbox", "tagsWarning" ]
+  static targets = [ "channelName", "category", "description", "avatar", "banner", "warning", "tagCheckbox", "tagsWarning", "visibilityToggle", "visibilityInput", "visibilityHint" ]
   static values = {
     directUploadUrl: String,
     submitUrl: String,
@@ -34,6 +34,18 @@ export default class extends Controller {
         group.querySelectorAll("input[type=checkbox]").forEach((checkbox) => { checkbox.checked = false })
       }
     })
+  }
+
+  // Visual-only — just flips the hidden field's value. Nothing is submitted
+  // until the whole form is saved, same as any other field on this page.
+  toggleVisibility() {
+    const makingPublic = this.visibilityInputTarget.value !== "public"
+    this.visibilityInputTarget.value = makingPublic ? "public" : "private"
+    this.visibilityToggleTarget.classList.toggle("toggle-switch--on", makingPublic)
+    this.visibilityToggleTarget.setAttribute("aria-pressed", makingPublic)
+    this.visibilityHintTarget.textContent = makingPublic
+      ? "Public — anyone can find and watch this channel."
+      : "Private — only you can see this channel."
   }
 
   toggleTag(event) {
@@ -72,7 +84,8 @@ export default class extends Controller {
         channel_name: channelName,
         category_id: this.categoryTarget.value,
         description: this.descriptionTarget.value,
-        tag_ids: this.checkedTagIds()
+        tag_ids: this.checkedTagIds(),
+        ...(this.hasVisibilityInputTarget ? { visibility: this.visibilityInputTarget.value } : {})
       },
       avatarFile: this.avatarTarget.files[0] || null,
       bannerFile: this.bannerTarget.files[0] || null,

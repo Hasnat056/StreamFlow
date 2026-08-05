@@ -9,7 +9,13 @@ class ChannelsController < ApplicationController
 
   def show
     @channel = Channel.find(params[:id])
-    @videos = @channel.videos.ready.order(created_at: :desc)
+    @owner_viewing = current_user&.id == @channel.user_id
+
+    return if @channel.hidden? && !@owner_viewing
+
+    # The owner sees all of their own ready videos, including private ones;
+    # anyone else only sees what's actually discoverable (ready + public).
+    @videos = (@owner_viewing ? @channel.videos.ready : @channel.videos.discoverable).order(created_at: :desc)
     @views_by_video = VideoView.where(video_id: @videos.map(&:id)).group(:video_id).count
   end
 
@@ -24,7 +30,6 @@ class ChannelsController < ApplicationController
     else
       respond_to do |format|
         format.html do
-          # Re-populate dropdown/picker data on validation error
           load_tag_picker_data
           render :new, status: :unprocessable_entity
         end
@@ -70,6 +75,7 @@ class ChannelsController < ApplicationController
       :description,
       :avatar,
       :banner,
+      :visibility,
       tag_ids: []
     )
   end

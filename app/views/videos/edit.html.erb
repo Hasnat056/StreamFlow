@@ -19,6 +19,13 @@
     </div>
 
     <div class="field">
+      <%= f.label :visibility, class: "field__label" %>
+      <p class="field__hint">Private videos are only visible to you.</p>
+      <%= f.select :visibility, options_for_select([ [ "Public", "public" ], [ "Private", "private" ] ], @video.visibility),
+            {}, { class: "field__select" } %>
+    </div>
+
+    <div class="field">
       <%= f.label :tag_ids, "Tags", class: "field__label" %>
       <p class="field__hint">Pick up to <%= Video::MAX_TAGS %>.</p>
       <div class="tag-picker">

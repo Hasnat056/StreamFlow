@@ -1,6 +1,10 @@
 # frozen_string_literal: true
 
 class VideoPolicy < ApplicationPolicy
+  def create?
+    owner?
+  end
+
   def update?
     owner?
   end

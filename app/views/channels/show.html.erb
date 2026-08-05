@@ -17,6 +17,9 @@
     <h1 class="channel-header__name"><%= @channel.channel_name %></h1>
     <span class="badge"><%= @channel.category.name %></span>
     <span class="badge"><%= pluralize(@channel.subscribers.count, "subscriber") %></span>
+    <% if @channel.hidden? %>
+      <span class="badge">Private</span>
+    <% end %>
 
     <% if @channel.description.present? %>
       <p class="channel-header__desc"><%= @channel.description %></p>
@@ -56,7 +59,9 @@
 <section>
   <h2 class="section-title">Videos</h2>
 
-  <% if @videos.present? %>
+  <% if @channel.hidden? && !@owner_viewing %>
+    <p class="empty-state">This channel is private.</p>
+  <% elsif @videos.present? %>
     <div class="video-grid">
       <%= render partial: "videos/video_card", collection: @videos, as: :video, locals: { views_by_video: @views_by_video } %>
     </div>

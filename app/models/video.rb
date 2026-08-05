@@ -22,6 +22,9 @@ class Video < ApplicationRecord
   validates :title, presence: true
   validate :tags_within_limit
 
+  # Same visible/hidden key-naming reasoning as Channel#visibility — avoids
+  # colliding with Module#public/#private on the class-level enum scopes.
+  enum :visibility, { visible: "public", hidden: "private" }
 
   enum :status, {
     upload_pending: "upload_pending",
@@ -61,7 +64,15 @@ class Video < ApplicationRecord
     after_all_transitions :broadcast_in_process_update
   end
 
+  # Ready + public *and* the owning channel is public — the "can this surface
+  # anywhere" filter for feeds/grids/related-videos. Private videos (or any
+  # video, public or not, on a private channel) stay individually watchable
+  # via direct link (VideosController#show doesn't check visibility), they
+  # just never get pulled into anything that lists/recommends videos.
+  scope :discoverable, -> { ready.visible.joins(:channel).where(channels: { visibility: "public" }) }
+
   after_commit :bust_attrs_cache
+  after_commit :sync_home_feed_cache_on_visibility_change
   after_destroy_commit :purge_remote_storage
   after_destroy_commit :remove_from_home_feed_cache
 
@@ -136,7 +147,7 @@ class Video < ApplicationRecord
     # for ordering.
     ids = joins(:video_tags)
       .where(video_tags: { tag_id: video.tag_ids })
-      .where(status: :ready)
+      .discoverable
       .where.not(id: video.id)
       .distinct
       .order(created_at: :desc)
@@ -160,11 +171,28 @@ class Video < ApplicationRecord
   end
 
   def self.seed_home_feed_cache
-    rows = ready.order(created_at: :desc).limit(HOME_FEED_BOUND).pluck(:id, :created_at)
+    rows = discoverable.order(created_at: :desc).limit(HOME_FEED_BOUND).pluck(:id, :created_at)
     return [] if rows.empty?
 
     REDIS.zadd(HOME_FEED_KEY, rows.map { |id, created_at| [ created_at.to_i, id ] })
     rows.map(&:first)
+  end
+
+  # Atomic append + trim — ZADD/ZREMRANGEBYRANK avoid the read-modify-write
+  # race a plain cached array would have if two videos finish processing at
+  # the same time. Private videos (own visibility or the channel's) never
+  # enter the feed at all. Public (not private): called from Video's own
+  # AASM/visibility hooks below, and from Channel#sync_videos_on_visibility_change
+  # when the *channel* flips public/private — hence public, not private.
+  def add_to_home_feed_cache
+    return unless visible? && channel.visible?
+
+    REDIS.zadd(HOME_FEED_KEY, created_at.to_i, id)
+    REDIS.zremrangebyrank(HOME_FEED_KEY, 0, -(HOME_FEED_BOUND + 1))
+  end
+
+  def remove_from_home_feed_cache
+    REDIS.zrem(HOME_FEED_KEY, id)
   end
 
   private
@@ -177,16 +205,13 @@ class Video < ApplicationRecord
     Rails.cache.delete("video:#{id}:attrs")
   end
 
-  # Atomic append + trim — ZADD/ZREMRANGEBYRANK avoid the read-modify-write
-  # race a plain cached array would have if two videos finish processing at
-  # the same time.
-  def add_to_home_feed_cache
-    REDIS.zadd(HOME_FEED_KEY, created_at.to_i, id)
-    REDIS.zremrangebyrank(HOME_FEED_KEY, 0, -(HOME_FEED_BOUND + 1))
-  end
+  # Handles visibility flipping on an already-ready video (add_to_home_feed_cache
+  # above only fires once, on the upload_pending->...->ready transition) —
+  # keeps the Redis feed in sync if a public video is made private or vice versa.
+  def sync_home_feed_cache_on_visibility_change
+    return unless ready? && saved_change_to_visibility?
 
-  def remove_from_home_feed_cache
-    REDIS.zrem(HOME_FEED_KEY, id)
+    visible? ? add_to_home_feed_cache : remove_from_home_feed_cache
   end
 
   # source_file (ActiveStorage) purges itself automatically on destroy; the

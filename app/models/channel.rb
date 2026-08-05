@@ -24,13 +24,20 @@ class Channel < ApplicationRecord
   # Validations
   validates :channel_name, presence: true
   validates :user_id, presence: true
-
-  # Ensure user can only have one channel per channel_type (per index constraint)
-  validates :channel_type, presence: true,
-            uniqueness: { scope: :user_id, message: "already has a channel of this type" }
+  validates :category_id, presence: true
 
   validate :tags_within_limit
   validate :tags_within_pool
+
+  # Enum keys are named visible/hidden rather than public/private: Ruby's
+  # Module#public/#private (inherited by every class, including this one)
+  # would collide with the class-level scopes Rails' enum macro generates
+  # for the literal key names, not just the instance ?-methods — same class
+  # of bug as the AASM "frozen" state colliding with Object#frozen? earlier.
+  # The stored/DB-facing values are still the plain strings "public"/"private".
+  enum :visibility, { visible: "public", hidden: "private" }
+
+  after_commit :sync_videos_on_visibility_change
 
   # Tags selectable for this channel: its own category's tags, plus tags
   # under the always-included, non-selectable General category.
@@ -66,5 +73,18 @@ class Channel < ApplicationRecord
     raise "Missing r2.public_base_url credential - cannot build a channel image URL" if base_url.blank?
 
     "#{base_url}/#{key}"
+  end
+
+  # A channel going public/private doesn't just affect its own page — every
+  # ready video's cached attrs (channel preloaded, now stale) and its
+  # membership in the home-feed Redis cache both depend on it, not just the
+  # video's own visibility (see Video#add_to_home_feed_cache's guard).
+  def sync_videos_on_visibility_change
+    return unless saved_change_to_visibility?
+
+    videos.ready.find_each do |video|
+      Rails.cache.delete("video:#{video.id}:attrs")
+      visible? ? video.add_to_home_feed_cache : video.remove_from_home_feed_cache
+    end
   end
 end

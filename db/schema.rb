@@ -10,15 +10,16 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_04_121000) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_05_093852) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "citext"
   enable_extension "pg_catalog.plpgsql"
 
   # Custom types defined in this database.
   # Note that some types may not work with other database engines. Be careful if changing database.
-  create_enum "channel_types", ["viewer", "creator"]
+  create_enum "channel_visibilities", ["public", "private"]
   create_enum "video_status", ["upload_pending", "uploaded", "processing", "ready", "failed"]
+  create_enum "video_visibilities", ["public", "private"]
 
   create_table "active_storage_attachments", force: :cascade do |t|
     t.bigint "blob_id", null: false
@@ -81,13 +82,12 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_04_121000) do
     t.text "channel_avatar_url"
     t.text "channel_banner_url"
     t.string "channel_name", null: false
-    t.enum "channel_type", default: "viewer", null: false, enum_type: "channel_types"
     t.datetime "created_at", null: false
     t.text "description"
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
+    t.enum "visibility", default: "public", null: false, enum_type: "channel_visibilities"
     t.index ["category_id"], name: "index_channels_on_category_id"
-    t.index ["user_id", "channel_type"], name: "index_channels_on_user_id_and_channel_type", unique: true
     t.index ["user_id"], name: "index_channels_on_user_id"
   end
 
@@ -191,6 +191,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_04_121000) do
     t.text "thumbnail_url"
     t.string "title", null: false
     t.datetime "updated_at", null: false
+    t.enum "visibility", default: "public", null: false, enum_type: "video_visibilities"
     t.bigint "watch_time", default: 0, null: false
     t.index ["channel_id"], name: "index_videos_on_channel_id"
   end

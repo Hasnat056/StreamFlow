@@ -6,12 +6,14 @@ class VideosController < ApplicationController
   def new
     @channel = Channel.find(params[:channel_id])
     @video = @channel.videos.build
+    authorize @video
     @tag_groups = Category.cached_tag_groups
   end
 
   def create
     @channel = Channel.find(params[:channel_id])
     @video = @channel.videos.build(video_params)
+    authorize @video
 
     if @video.save
       # Mark state machine as uploaded if AASM event exists
@@ -92,6 +94,6 @@ class VideosController < ApplicationController
   end
 
   def video_update_params
-    params.require(:video).permit(:title, tag_ids: [])
+    params.require(:video).permit(:title, :visibility, tag_ids: [])
   end
 end
