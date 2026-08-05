@@ -21,6 +21,6 @@ class WatchProgressesController < ApplicationController
   private
 
   def set_video
-    @video = Channel.find(params[:channel_id]).videos.find(params[:video_id])
+    @video = Channel.find_by!(handle: params[:channel_id]).videos.find(params[:video_id])
   end
 end

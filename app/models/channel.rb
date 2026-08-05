@@ -2,6 +2,8 @@
 
 class Channel < ApplicationRecord
   MAX_TAGS = 5
+  HANDLE_FORMAT = /\A[a-z0-9_]+\z/
+  RESERVED_HANDLES = %w[new].freeze
 
   # Relationships
   belongs_to :user
@@ -26,8 +28,18 @@ class Channel < ApplicationRecord
   validates :user_id, presence: true
   validates :category_id, presence: true
 
+  validates :handle, presence: true, length: { in: 3..30 },
+    format: { with: HANDLE_FORMAT, message: "can only contain lowercase letters, numbers, and underscores" },
+    uniqueness: { case_sensitive: false },
+    exclusion: { in: RESERVED_HANDLES, message: "is reserved" }
+
   validate :tags_within_limit
   validate :tags_within_pool
+
+  before_validation :generate_handle, on: :create
+
+  # Handle is system-assigned, never user input, so it can't drift after creation.
+  attr_readonly :handle
 
   # Enum keys are named visible/hidden rather than public/private: Ruby's
   # Module#public/#private (inherited by every class, including this one)
@@ -38,6 +50,13 @@ class Channel < ApplicationRecord
   enum :visibility, { visible: "public", hidden: "private" }
 
   after_commit :sync_videos_on_visibility_change
+
+  # Used everywhere a channel_path/channel_video_path etc. is generated, so
+  # URLs are /channels/somehandle instead of /channels/123 without touching
+  # any of the call sites.
+  def to_param
+    handle
+  end
 
   # Tags selectable for this channel: its own category's tags, plus tags
   # under the always-included, non-selectable General category.
@@ -86,5 +105,22 @@ class Channel < ApplicationRecord
       Rails.cache.delete("video:#{video.id}:attrs")
       visible? ? video.add_to_home_feed_cache : video.remove_from_home_feed_cache
     end
+  end
+
+  # Always system-assigned from the channel name — there's no form field for
+  # this, so any incoming value is ignored rather than trusted.
+  def generate_handle
+    base = channel_name.to_s.downcase.gsub(/[^a-z0-9_]+/, "_").squeeze("_").gsub(/\A_+|_+\z/, "")
+    base = "channel" if base.length < 3
+    base = base[0, 24].to_s
+
+    candidate = base
+    suffix = 1
+    while Channel.exists?(handle: candidate)
+      candidate = "#{base}_#{suffix}"
+      suffix += 1
+    end
+
+    self.handle = candidate
   end
 end

@@ -26,7 +26,7 @@ class ChannelAnalyticsController < ApplicationController
   private
 
   def set_owned_channel
-    @channel = Channel.find(params[:channel_id])
+    @channel = Channel.find_by!(handle: params[:channel_id])
   end
 
   def daily_series(scope)

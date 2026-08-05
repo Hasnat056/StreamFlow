@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_05_093852) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_05_171651) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "citext"
   enable_extension "pg_catalog.plpgsql"
@@ -84,10 +84,12 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_05_093852) do
     t.string "channel_name", null: false
     t.datetime "created_at", null: false
     t.text "description"
+    t.string "handle", null: false
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
     t.enum "visibility", default: "public", null: false, enum_type: "channel_visibilities"
     t.index ["category_id"], name: "index_channels_on_category_id"
+    t.index ["handle"], name: "index_channels_on_handle", unique: true
     t.index ["user_id"], name: "index_channels_on_user_id"
   end
 

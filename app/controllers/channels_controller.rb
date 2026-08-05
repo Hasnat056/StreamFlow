@@ -8,7 +8,7 @@ class ChannelsController < ApplicationController
   end
 
   def show
-    @channel = Channel.find(params[:id])
+    @channel = Channel.find_by!(handle: params[:id])
     @owner_viewing = current_user&.id == @channel.user_id
 
     return if @channel.hidden? && !@owner_viewing
@@ -66,7 +66,7 @@ class ChannelsController < ApplicationController
   private
 
   def set_channel
-    @channel = Channel.find(params[:id])
+    @channel = Channel.find_by!(handle: params[:id])
   end
 
   def channel_params

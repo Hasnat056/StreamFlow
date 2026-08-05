@@ -4,14 +4,14 @@ class VideosController < ApplicationController
   before_action :set_video, only: [ :edit, :update, :destroy, :toggle_visibility ]
 
   def new
-    @channel = Channel.find(params[:channel_id])
+    @channel = Channel.find_by!(handle: params[:channel_id])
     @video = @channel.videos.build
     authorize @video
     @tag_groups = Category.cached_tag_groups
   end
 
   def create
-    @channel = Channel.find(params[:channel_id])
+    @channel = Channel.find_by!(handle: params[:channel_id])
     @video = @channel.videos.build(video_params)
     authorize @video
 
@@ -41,7 +41,7 @@ class VideosController < ApplicationController
   end
 
   def show
-    @channel = Channel.find(params[:channel_id])
+    @channel = Channel.find_by!(handle: params[:channel_id])
     @video = Video.cached_attrs(params[:id])
     raise ActiveRecord::RecordNotFound unless @video && @video.channel_id == @channel.id
 
@@ -98,7 +98,7 @@ class VideosController < ApplicationController
   private
 
   def set_video
-    @channel = Channel.find(params[:channel_id])
+    @channel = Channel.find_by!(handle: params[:channel_id])
     @video = @channel.videos.find(params[:id])
   end
 

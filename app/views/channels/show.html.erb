@@ -15,6 +15,7 @@
 
   <div class="channel-header__body">
     <h1 class="channel-header__name"><%= @channel.channel_name %></h1>
+    <p class="channel-header__handle">@<%= @channel.handle %></p>
     <span class="badge"><%= @channel.category.name %></span>
     <span class="badge"><%= pluralize(@channel.subscribers.count, "subscriber") %></span>
     <% if @channel.hidden? %>

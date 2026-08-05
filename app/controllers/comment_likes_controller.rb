@@ -15,7 +15,7 @@ class CommentLikesController < ApplicationController
   private
 
   def set_comment
-    @video = Channel.find(params[:channel_id]).videos.find(params[:video_id])
+    @video = Channel.find_by!(handle: params[:channel_id]).videos.find(params[:video_id])
     @comment = @video.comments.find(params[:comment_id])
   end
 
