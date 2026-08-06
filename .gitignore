@@ -39,6 +39,13 @@
 # Ignore JavaScript / Node dependencies
 /node_modules
 
+# Ignore SimpleCov coverage reports
+/coverage
+
+# Load-test seed output — contains real session cookies, regenerate via
+# load/k6/seed.rb rather than committing.
+/load/k6/seed_data.json
+
 # ==========================================
 # RubyMine / JetBrains IDE (Updated)
 # ==========================================

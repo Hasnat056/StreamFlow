@@ -54,6 +54,9 @@ group :development, :test do
 
   # Omakase Ruby styling [https://github.com/rails/rubocop-rails-omakase/]
   gem "rubocop-rails-omakase", require: false
+
+  # Test framework for model, request, and system specs (SRS 8.11)
+  gem "rspec-rails"
 end
 
 group :development do
@@ -65,6 +68,24 @@ group :test do
   # Use system testing [https://guides.rubyonrails.org/testing.html#system-testing]
   gem "capybara"
   gem "selenium-webdriver"
+
+  # Code coverage reporting [https://github.com/simplecov-ruby/simplecov]
+  gem "simplecov", require: false
+
+  # Test data factories for User, Channel, and Video (SRS 8.11)
+  gem "factory_bot_rails"
+
+  # Sample data for factories and seed scripts (SRS 8.11)
+  gem "faker"
+
+  # One-line matchers for validations, associations, and Pundit policies (SRS 8.11)
+  gem "shoulda-matchers"
+
+  # HTTP request stubbing — prevents test runs from hitting real R2 (SRS 8.11)
+  gem "webmock"
+
+  # Records HTTP interactions once, replays them for processing-pipeline tests (SRS 8.11)
+  gem "vcr"
 end
 
 

@@ -20,7 +20,12 @@ Rails.application.configure do
 
   # Show full error reports.
   config.consider_all_requests_local = true
-  config.cache_store = :null_store
+
+  # :null_store would make Channel/Video's Rails.cache-based caching (attrs,
+  # counts, cached_subscriber_count, cached_tag_groups) untestable by
+  # construction — the block always runs, so "does this actually cache"
+  # can never be observed. memory_store is cleared per-test in test_helper.rb.
+  config.cache_store = :memory_store
 
   # Render exception templates for rescuable exceptions and raise for other exceptions.
   config.action_dispatch.show_exceptions = :rescuable
