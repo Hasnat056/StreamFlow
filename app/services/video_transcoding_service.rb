@@ -8,6 +8,12 @@ class VideoTranscodingService
     { height: 480,  video_bitrate: "1400k", audio_bitrate: "128k" }
   ].freeze
 
+  # Every object written here lives under a versioned key (hls/vN/, or the
+  # thumbnail overwritten only as part of the same reprocess) - per SRS 7.3,
+  # finished VOD output never changes in place, so it's safe for the CDN and
+  # browsers to cache it forever.
+  IMMUTABLE_CACHE_CONTROL = "public, max-age=31536000, immutable"
+
   def initialize(video)
     @video = video
   end
@@ -92,7 +98,11 @@ class VideoTranscodingService
       next if File.directory?(path)
       relative_key = path.delete_prefix("#{tmp_dir}/")
       key = "#{prefix}#{relative_key}"
-      S3_BUCKET.object(key).upload_file(path, content_type: content_type_for(path))
+      S3_BUCKET.object(key).upload_file(
+        path,
+        content_type: content_type_for(path),
+        cache_control: IMMUTABLE_CACHE_CONTROL
+      )
     end
   end
 
@@ -114,7 +124,11 @@ class VideoTranscodingService
     return nil unless File.exist?(output)
 
     key = @video.thumbnail_key
-    S3_BUCKET.object(key).upload_file(output, content_type: "image/jpeg")
+    S3_BUCKET.object(key).upload_file(
+      output,
+      content_type: "image/jpeg",
+      cache_control: IMMUTABLE_CACHE_CONTROL,
+    )
     "#{r2_public_base_url}/#{key}"
   end
 
