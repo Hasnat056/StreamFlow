@@ -50,7 +50,7 @@ Rails.application.configure do
   # with Sidekiq for now — see CLAUDE.md target architecture for the planned
   # split into separate instances.
   config.cache_store = :redis_cache_store, {
-    url: Rails.application.credentials.dig(:redis, :redis_url),
+    url: ENV["REDIS_CACHE_URL"] || Rails.application.credentials.dig(:redis, :redis_url),
     namespace: "cache"
   }
 

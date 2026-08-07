@@ -17,7 +17,7 @@ default: &default
   encoding: unicode
   username: <%= Rails.application.credentials.dig(:database, :DB_USERNAME) %>
   password: <%= Rails.application.credentials.dig(:database, :DB_PASSWORD) %>
-  host: localhost
+  host: <%= ENV.fetch("DB_HOST", "localhost") %>
   port: 5432
   # For details on connection pooling, see Rails configuration guide
   # https://guides.rubyonrails.org/configuring.html#database-pooling

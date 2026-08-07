@@ -20,7 +20,7 @@ if Rails.env.test?
   worker_offset = ENV["TEST_ENV_NUMBER"].presence&.to_i || 0
   redis_url = redis_url.sub(%r{/\d+\z}, "/#{2 + worker_offset}")
 else
-  redis_url = Rails.application.credentials.dig(:redis, :redis_url) || "redis://localhost:6379/1"
+  redis_url = ENV["REDIS_CACHE_URL"] || Rails.application.credentials.dig(:redis, :redis_url) || "redis://localhost:6379/1"
 end
 
 REDIS = Redis.new(url: redis_url)
